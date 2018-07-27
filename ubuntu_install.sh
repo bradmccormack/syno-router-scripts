@@ -10,15 +10,14 @@
 # I will not take any responsibility!
 #
 #
-# Compatible Ubuntu distributions: 17.10 (until July 2018)
-#                                  18.04 LTS
+# Compatible Ubuntu distributions: 18.04.1 LTS
 #                                  18.10 (development state)
 #
 #
 # FIXME: apt cannot authenticate the repositories, maybe a kernel-related issue
 #
 
-vers=1.8 # 2018.05.19
+vers=1.9 # 2018.07.27
 syno_routers="RT2600ac RT1900ac" # Supported models
 
 error()
@@ -208,22 +207,18 @@ do
         }
 
       [ $(df $mp | awk "NR==2 {printf \$4}") -lt 1572864 ] && error 7 # 1.5 GiB free space check
-      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 17.10 Artful Aardvark (supported until July 2018)\n  \e[1m2\e[0m - 18.04 LTS Bionic Beaver (default)\n  \e[1m3\e[0m - 18.10 Cosmic Cuttlefish (in development)\n\n"
+      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.1 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 18.10 Cosmic Cuttlefish (in development)\n\n"
 
       while :
       do
         read -p "Select an option [1-2]: " o
 
         case $o in
-          1)
-            vers=17.10
-            name=artful
-            ;;
-          ""|2)
-            vers=18.04
+          ""|1)
+            vers=18.04.1
             name=bionic
             ;;
-          3)
+          2)
             vers=18.10
             name=cosmic
             ;;
