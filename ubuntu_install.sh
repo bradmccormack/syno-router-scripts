@@ -11,14 +11,15 @@
 #
 #
 # Compatible Ubuntu distributions: 18.04.1 LTS
-#                                  18.10 (development state)
+#                                  18.10
+#                                  19.04 (development state) - Incomplete, not active!
 #
 #
 # FIXME: apt cannot authenticate the repositories, maybe a kernel-related issue
 #
 
-vers=1.9 # 2018.07.27
-syno_routers="RT2600ac RT1900ac" # Supported models
+vers=1.10 # 2018.10.18
+syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
 {
@@ -207,7 +208,7 @@ do
         }
 
       [ $(df $mp | awk "NR==2 {printf \$4}") -lt 1572864 ] && error 7 # 1.5 GiB free space check
-      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.1 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 18.10 Cosmic Cuttlefish (in development)\n\n"
+      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.1 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 18.10 Cosmic Cuttlefish\n\n" # \e[1m3\e[0m - 19.04 D... D... (in development)\n\n"
 
       while :
       do
@@ -222,6 +223,10 @@ do
             vers=18.10
             name=cosmic
             ;;
+          #3)
+            #vers=19.04
+            #name=d...
+            #;;
           *)
             continue
         esac
@@ -233,7 +238,7 @@ do
       [ -e $udir ] && mv $udir ${udir}_$(tr -dc a-zA-Z0-9 </dev/urandom | head -c 16) # Backup the existing data
       mkdir $udir
       cd $udir
-      wget -O ubuntu.tar.gz http://cdimage.ubuntu.com/ubuntu-base/$([ $vers = 18.10 ] && printf daily/current/$name || printf releases/$vers/release/ubuntu-base-$vers)-base-armhf.tar.gz || errd
+      wget -O ubuntu.tar.gz http://cdimage.ubuntu.com/ubuntu-base/$([ $vers = 19.04 ] && printf daily/current/$name || printf releases/$vers/release/ubuntu-base-$vers)-base-armhf.tar.gz || errd
       tar -xf ubuntu.tar.gz --exclude=var/lib/apt/lists/* # Exclude because of authentication problem
       rm ubuntu.tar.gz
 
