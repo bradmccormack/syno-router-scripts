@@ -10,9 +10,9 @@
 # I will not take any responsibility!
 #
 
-vers=2.4 # 2018.05.19
-easyrsa_vers=3.0.4 # For download
-syno_routers="RT2600ac RT1900ac" # Supported models
+vers=2.5 # 2018.10.18
+easyrsa_vers=3.0.5 # For download
+syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
 {
@@ -64,7 +64,7 @@ setup()
 {
   chmod 700 $1 # Security reasons
   cd $1
-  wget -O easyrsa.tgz https://github.com/OpenVPN/easy-rsa/releases/download/v$easyrsa_vers/EasyRSA-$easyrsa_vers.tgz || errd
+  wget -O easyrsa.tgz https://github.com/OpenVPN/easy-rsa/releases/download/v$easyrsa_vers/EasyRSA-nix-$easyrsa_vers.tgz || errd
   ersa=$(tr -dc a-zA-Z0-9 </dev/urandom | head -c 16)
   mkdir $ersa
   tar -C $ersa -xf easyrsa.tgz --strip-components 1
@@ -245,8 +245,8 @@ users()
   ulst=""
 
   while read l
-  do case ${l:0:5} in
-      admin|guest)
+  do case ${l:0:12} in
+      admin:*|guest:*|SynologyCMS:)
         ;;
       *)
         printf "$l" | grep -q :\\$6\$ && ulst="$ulst${l%%:*}\n"
