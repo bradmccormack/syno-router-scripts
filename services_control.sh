@@ -10,8 +10,8 @@
 # I will not take any responsibility!
 #
 
-vers=1.5 # 2018.05.19
-syno_routers="RT2600ac RT1900ac" # Supported models
+vers=1.6 # 2018.10.18
+syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 # Service name : Entware startup script : and package name : and process name : Ubuntu startup script : and package name : and process name
 table="\

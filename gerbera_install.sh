@@ -13,8 +13,8 @@
 # NOTE: issues with Samsung SMART TVs
 #
 
-vers=1.3 # 2018.05.19
-syno_routers="RT2600ac RT1900ac" # Supported models
+vers=1.4 # 2018.10.18
+syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
 {

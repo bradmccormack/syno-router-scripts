@@ -9,8 +9,8 @@
 # I will not take any responsibility!
 #
 
-vers=1.3 # 2018.06.04
-syno_routers="RT2600ac RT1900ac" # Supported models
+vers=1.4 # 2018.10.18
+syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 dlink=https://gitlab.com/Kendek/syno-router-scripts/raw/master/ # Download from here
 
 # File names in order
