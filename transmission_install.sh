@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.8 # 2018.10.18
+vers=1.9 # 2018.10.28
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -216,7 +216,7 @@ blist()
   done
 }
 
-[ "\$(pidof transmission-da)" ] || {
+pidof transmission-daemon || {
     transmission-daemon -g /etc/transmission-daemon
     blist &
   }

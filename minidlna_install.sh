@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.6 # 2018.10.18
+vers=1.7 # 2018.10.28
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -192,7 +192,7 @@ do
       cat << EOF >/ubuntu/autostart/minidlna.sh
 #!/bin/sh
 
-[ "\$(pidof minidlnad)" ] || minidlnad
+pidof minidlnad || minidlnad
 EOF
 
       chmod +x /ubuntu/autostart/minidlna.sh

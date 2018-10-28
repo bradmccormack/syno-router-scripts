@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=2.5 # 2018.10.18
+vers=2.6 # 2018.10.28
 easyrsa_vers=3.0.5 # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
@@ -303,17 +303,17 @@ EOF
 
 okill()
 {
-  [ "$(pidof openvpn)" ] && {
+  pidof openvpn && {
       killall openvpn 2>/dev/null
       cnt=10
 
-      while [ "$(pidof openvpn)" ] && [ $((cnt--)) -ne 0 ]
+      while pidof openvpn && [ $((cnt--)) -ne 0 ]
       do sleep 1s
       done
 
-      [ "$(pidof openvpn)" ] && killall -9 openvpn
+      pidof openvpn && killall -9 openvpn
     }
-}
+} >/dev/null
 
 [ $(id -u) -eq 0 ] || error 1
 rname="$(head -c 8 /proc/sys/kernel/syno_hw_version 2>/dev/null)"
@@ -357,7 +357,7 @@ do
       cat << EOF >/ubuntu/autostart/openvpn.sh
 #!/bin/sh
 
-[ "\$(pidof openvpn)" ] || {
+pidof openvpn || {
     lsmod | grep -q ^tun || insmod /mnt/Synology/lib/modules/tun.ko
     service openvpn start
   }

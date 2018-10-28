@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.17 # 2018.10.18
+vers=1.18 # 2018.10.28
 plex_vers=1.13.8.5395-10d48da0d # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
@@ -60,15 +60,15 @@ setup()
 
   if [ -d $1/plexmediaserver ]
   then
-    [ "$(pidof PlexMediaServer)" ] && {
+    pidof PlexMediaServer >/dev/null && {
         killall PlexMediaServer
         cnt=20 # Plex can be slow
 
-        while [ "$(pidof PlexMediaServer)" ] && [ $((cnt--)) -ne 0 ]
+        while pidof PlexMediaServer >/dev/null && [ $((cnt--)) -ne 0 ]
         do sleep 1s
         done
 
-        [ "$(pidof PlexMediaServer)" ] && killall -9 PlexMediaServer
+        pidof PlexMediaServer >/dev/null && killall -9 PlexMediaServer
       }
 
     rm -rf $1/plexmediaserver/*
@@ -130,7 +130,7 @@ EOF
       cat << EOF >autostart/plexmediaserver.sh
 #!/bin/sh
 
-[ "\$(pidof PlexMediaServer)" ] || {
+pidof PlexMediaServer || {
     export LC_ALL=en_US.utf8 \\
            LANG=en_US.utf8 \\
            LD_LIBRARY_PATH=/usr/lib/plexmediaserver \\
@@ -139,7 +139,7 @@ EOF
            TMPDIR=/var/tmp
 
     ulimit -s 3000
-    /usr/lib/plexmediaserver/PlexMediaServer >/dev/null 2>&1 &
+    /usr/lib/plexmediaserver/PlexMediaServer &
   }
 EOF
 
