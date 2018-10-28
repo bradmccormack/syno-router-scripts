@@ -13,7 +13,7 @@
 # NOTE: issues with Samsung SMART TVs
 #
 
-vers=1.4 # 2018.10.18
+vers=1.5 # 2018.10.28
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -77,7 +77,7 @@ setting()
     <port>50500</port>
     <interface>lbr0</interface>
     <name>Synology</name>
-    <udn></udn>
+    <udn>uuid:$(uuidgen)</udn>
     <home>$2</home>
     <webroot>$3/share/gerbera/web</webroot>
     <!--
@@ -248,7 +248,7 @@ do
       cat << EOF >/ubuntu/autostart/gerbera.sh
 #!/bin/sh
 
-[ "\$(pidof gerbera)" ] || service gerbera start
+pidof gerbera || service gerbera start
 EOF
 
       chmod +x /ubuntu/autostart/gerbera.sh
