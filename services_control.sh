@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.6 # 2018.10.18
+vers=2.0 # 2018.10.28
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 # Service name : Entware startup script : and package name : and process name : Ubuntu startup script : and package name : and process name
@@ -39,15 +39,26 @@ error()
 
 pkill()
 {
-  [ "$(pidof $1)" ] || return 0
-  killall $1 2>/dev/null
+  pidof $1 || return 0
+  killall $1
   cnt=20 # Plex can be slow
 
-  while [ "$(pidof $1)" ] && [ $((cnt--)) -ne 0 ]
+  while pidof $1 && [ $((cnt--)) -ne 0 ]
   do sleep 1s
   done
 
-  [ "$(pidof $1)" ] && killall -9 $1
+  pidof $1 && killall -9 $1
+} >/dev/null 2>&1
+
+pdetect()
+{
+  pidof $1 >/dev/null && {
+      echo "  running"
+      t2="${t2}:running"
+    } || {
+      echo "  stopped"
+      t2="${t2}:stopped"
+    }
 }
 
 [ $(id -u) -eq 0 ] || error 1
@@ -75,31 +86,35 @@ do
     if [ -f $epath ]
     then
       t2="$t2$name:"
-      printf " \e[1m$cnt\e[0m - $name $(printf "%$(($mlen-${#name}))s") installed on Entware      "
+      printf " \e[1m$cnt\e[0m - $name $(printf "%$(($mlen-${#name}))s") installed on Entware  "
 
       grep -q ^ENABLED=yes $epath && {
-          echo " enabled"
+          printf " enabled"
           t2="${t2}enabled"
         } || {
-          echo disabled
+          printf disabled
           t2="${t2}disabled"
         }
 
-      t2="$t2:$epath:$(printf "$serv" | cut -d : -f 4):E:$(printf "$serv" | cut -d : -f 3):/opt/bin/opkg remove --autoremove\n"
+      pname="$(printf "$serv" | cut -d : -f 4)"
+      pdetect $pname
+      t2="$t2:$epath:$pname:E:$(printf "$serv" | cut -d : -f 3):/opt/bin/opkg remove --autoremove\n"
     elif [ -f $upath ]
     then
       t2="$t2$name:"
-      printf " \e[1m$cnt\e[0m - $name $(printf "%$(($mlen-${#name}))s") installed on Ubuntu       "
+      printf " \e[1m$cnt\e[0m - $name $(printf "%$(($mlen-${#name}))s") installed on Ubuntu   "
 
       [ -x $upath ] && {
-          echo " enabled"
+          printf " enabled"
           t2="${t2}enabled"
         } || {
-          echo disabled
+          printf disabled
           t2="${t2}disabled"
         }
 
-      t2="$t2:$upath:$(printf "$serv" | cut -d : -f 7):U:$(printf "$serv" | cut -d : -f 6):chroot /ubuntu /usr/bin/apt --allow-unauthenticated remove -y\n"
+      pname="$(printf "$serv" | cut -d : -f 7)"
+      pdetect $pname
+      t2="$t2:$upath:$pname:U:$(printf "$serv" | cut -d : -f 6):chroot /ubuntu /usr/bin/apt --allow-unauthenticated remove -y\n"
     else
       echo " # - $name $(printf "%$(($mlen-${#name}))s") not installed"
       t2="$t2\n"
@@ -119,22 +134,32 @@ EOF
         [ "$(printf "$t2" | sed -n ${o}p)" ] || continue
         name="$(printf "$t2" | awk -F : "NR==$o {printf \$1}")"
         ss=$(printf "$t2" | awk -F : "NR==$o {printf \$2}")
-        [ "$(printf "$t2" | awk -F : "NR==$o {printf \$5}")" = E ] && loc="Entware ($(readlink /opt))" || loc="Ubuntu ($(readlink /ubuntu))"
-        printf "\e[2J\e[1;1H\ec\n Service:  \e[1m$name\e[0m\n Location: \e[1m$loc\e[0m\n Status:   \e[1m$ss\e[0m \n\n  \e[1m1\e[0m - "
-        [ "$ss" = enabled ] && printf Disable || printf Enable
-        printf "\n  \e[1m2\e[0m - Uninstall\n  \e[1m0\e[0m - Cancel (default)\n\n"
+        ps=$(printf "$t2" | awk -F : "NR==$o {printf \$3}")
+        [ "$(printf "$t2" | awk -F : "NR==$o {printf \$6}")" = E ] && loc="Entware ($(readlink /opt))" || loc="Ubuntu ($(readlink /ubuntu))"
+        printf "\e[2J\e[1;1H\ec\n Service:  \e[1m$name\e[0m\n Location: \e[1m$loc\e[0m\n Status:   \e[1m$ss\e[0m\n Process:  \e[1m$ps\e[0m \n\n  \e[1m1\e[0m - "
+        cnt=1
+
+        [ "$ss" = enabled ] && {
+            printf "Disable\n  \e[1m$((++cnt))\e[0m - "
+            [ "$ps" = running ] && printf Stop || printf Start
+          } || {
+            printf Enable
+            [ "$ps" = running ] && printf "\n  \e[1m$((++cnt))\e[0m - Stop"
+          }
+
+        printf "\n  \e[1m$((++cnt))\e[0m - Uninstall\n  \e[1m0\e[0m - Cancel (default)\n\n"
 
         while :
         do
-          read -p "Select an option [0-2]: " o2
+          read -p "Select an option [0-$cnt]: " o2
 
           case $o2 in
             1)
-              path=$(printf "$t2" | awk -F : "NR==$o {printf \$3}")
+              path=$(printf "$t2" | awk -F : "NR==$o {printf \$4}")
 
               if [ "$ss" = enabled ]
               then
-                pkill "$(printf "$t2" | awk -F : "NR==$o {printf \$4}")"
+                pkill "$(printf "$t2" | awk -F : "NR==$o {printf \$5}")"
 
                 if [ "${loc:0:1}" = E ]
                 then
@@ -159,19 +184,20 @@ EOF
               sync
               break
               ;;
-            2)
-              pkill "$(printf "$t2" | awk -F : "NR==$o {printf \$4}")"
-              pkgs="$(printf "$t2" | awk -F : "NR==$o {printf \$6}")"
+            $cnt)
+              pkill "$(printf "$t2" | awk -F : "NR==$o {printf \$5}")"
+              pkgs="$(printf "$t2" | awk -F : "NR==$o {printf \$7}")"
 
               if [ "$pkgs" != PLEX ]
               then
-                $(printf "$t2" | awk -F : "NR==$o {printf \$7}") $pkgs
-                chroot /ubuntu /usr/bin/apt --allow-unauthenticated autoremove --purge -y # Purge only the dependecies
+                $(printf "$t2" | awk -F : "NR==$o {printf \$8}") $pkgs
 
                 if [ "${loc:0:1}" = U ]
-                then rm $(printf "$t2" | awk -F : "NR==$o {printf \$3}")
+                then
+                  chroot /ubuntu /usr/bin/apt --allow-unauthenticated autoremove --purge -y # Purge only the dependecies
+                  rm $(printf "$t2" | awk -F : "NR==$o {printf \$4}")
                 elif [ "$name" = Transmission ]
-                then rm $path-blist /opt/transmission.sh
+                then rm /opt/etc/init.d/S88transmission-blist /opt/transmission.sh
                 fi
               elif [ "${loc:0:1}" = E ]
               then rm -rf /opt/etc/init.d/S90plexmediaserver /opt/lib/plexmediaserver
@@ -179,6 +205,22 @@ EOF
               fi
 
               sync
+              break
+              ;;
+            2)
+              if [ "$ps" = running ]
+              then pkill "$(printf "$t2" | awk -F : "NR==$o {printf \$5}")"
+              else
+                path=$(printf "$t2" | awk -F : "NR==$o {printf \$4}")
+
+                if [ "${loc:0:1}" = U ]
+                then setsid chroot /ubuntu ${path:7} >/dev/null 2>&1
+                else
+                  setsid $path start
+                  [ "$name" = Transmission ] && setsid $path-blist start
+                fi
+              fi
+
               break
               ;;
             ""|0)
