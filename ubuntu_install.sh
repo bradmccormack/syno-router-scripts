@@ -12,13 +12,13 @@
 #
 # Compatible Ubuntu distributions: 18.04.1 LTS
 #                                  18.10
-#                                  19.04 (development state) - Incomplete, not active!
+#                                  19.04 (development state)
 #
 #
 # FIXME: apt cannot authenticate the repositories, maybe a kernel-related issue
 #
 
-vers=1.10 # 2018.10.18
+vers=1.11 # 2018.11.01
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -208,7 +208,7 @@ do
         }
 
       [ $(df $mp | awk "NR==2 {printf \$4}") -lt 1572864 ] && error 7 # 1.5 GiB free space check
-      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.1 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 18.10 Cosmic Cuttlefish\n\n" # \e[1m3\e[0m - 19.04 D... D... (in development)\n\n"
+      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.1 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 18.10 Cosmic Cuttlefish\n  \e[1m3\e[0m - 19.04 Disco Dingo (in development)\n\n"
 
       while :
       do
@@ -223,10 +223,10 @@ do
             vers=18.10
             name=cosmic
             ;;
-          #3)
-            #vers=19.04
-            #name=d...
-            #;;
+          3)
+            vers=19.04
+            name=disco
+            ;;
           *)
             continue
         esac
