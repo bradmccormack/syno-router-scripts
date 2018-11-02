@@ -34,7 +34,7 @@ Usage:
 sh -c "$(wget -O- goo.gl/Pkyohd)"
 ```
 
-![](https://logout.hu/dl/upc/2018-01/180556_executor.png)
+![](https://logout.hu/dl/upc/2018-11/180556_executor.png)
 
 ## entware_install.sh
 
@@ -71,6 +71,7 @@ Requirements:
 Usage:
 ```sh
 sh -c "$(wget -O- goo.gl/aBC8BP)"
+sh -c "$(wget -O- goo.gl/rGZYXa)" # On RT1900ac
 
 apt install <package>
 apt-upgrade # Upgrade the packages
