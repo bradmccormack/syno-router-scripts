@@ -9,7 +9,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.4 # 2018.10.18
+vers=1.5 # 2018.11.02
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 dlink=https://gitlab.com/Kendek/syno-router-scripts/raw/master/ # Download from here
 
@@ -17,6 +17,7 @@ dlink=https://gitlab.com/Kendek/syno-router-scripts/raw/master/ # Download from 
 scripts="\
 entware_install.sh
 ubuntu_install.sh
+ubuntu_install_rt1900ac.sh
 transmission_install.sh
 openvpn_install.sh
 minidlna_install.sh
@@ -60,17 +61,17 @@ do
   cnt=0
 
   for s in $scripts
-  do printf " \e[1m$((++cnt))\e[0m - $s\n"
+  do printf " $([ $cnt -lt 9 ] && printf " ")\e[1m$((++cnt))\e[0m - $s\n"
   done
 
-  printf " \e[1m0\e[0m - Quit (default)\n\n"
+  printf "  \e[1m0\e[0m - Quit (default)\n\n"
 
   while :
   do
     read -p "Select an option [0-$cnt]: " o
 
     case $o in
-      [1-$cnt])
+      [1-9]|1[0-$((cnt-10))])
         script="$(wget -O - $dlink$(printf "$scripts" | sed -n ${o}p))"
         [ "$script" ] || errd
         sh -c "$script"
