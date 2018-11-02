@@ -12,14 +12,11 @@
 #
 # Compatible Ubuntu distributions: 18.04.1 LTS
 #                                  18.10
-#                                  19.04 (development state)
-#
-#
-# FIXME: apt cannot authenticate the repositories, maybe a kernel-related issue
+#                                  19.04 latest daily build
 #
 
-vers=1.11 # 2018.11.01
-syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
+vers=1.12 # 2018.11.02
+syno_routers="MR2200ac RT2600ac" # Supported models
 
 error()
 {
@@ -68,8 +65,8 @@ setup()
 {
   grep -q "^alias uroot=\"chroot /ubuntu /bin/bash\"$" /root/.profile || cat << EOF >>/root/.profile
 alias uroot="chroot /ubuntu /bin/bash"
-alias apt="chroot /ubuntu /usr/bin/apt --allow-unauthenticated"
-alias apt-upgrade="apt update 2>/dev/null ; apt dist-upgrade ; apt autoremove --purge ; apt clean"
+alias apt="chroot /ubuntu /usr/bin/apt"
+alias apt-upgrade="apt update ; apt dist-upgrade ; apt autoremove --purge ; apt clean"
 EOF
 
   sfile=/usr/local/etc/rc.d/ubuntu.sh
@@ -141,10 +138,10 @@ EOF
   do :
   done
 
-  chroot /ubuntu /usr/bin/apt update 2>/dev/null
-  chroot /ubuntu /usr/bin/apt --allow-unauthenticated dist-upgrade -y
-  chroot /ubuntu /usr/bin/apt --allow-unauthenticated install locales -y
-  chroot /ubuntu /usr/bin/apt --allow-unauthenticated autoremove --purge -y
+  chroot /ubuntu /usr/bin/apt update
+  chroot /ubuntu /usr/bin/apt dist-upgrade -y
+  chroot /ubuntu /usr/bin/apt install locales -y
+  chroot /ubuntu /usr/bin/apt autoremove --purge -y
   chroot /ubuntu /usr/bin/apt clean
   [ -f /ubuntu/usr/sbin/locale-gen ] || errd
   chroot /ubuntu /usr/sbin/locale-gen en_US.UTF-8
@@ -208,7 +205,7 @@ do
         }
 
       [ $(df $mp | awk "NR==2 {printf \$4}") -lt 1572864 ] && error 7 # 1.5 GiB free space check
-      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.1 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 18.10 Cosmic Cuttlefish\n  \e[1m3\e[0m - 19.04 Disco Dingo (in development)\n\n"
+      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.1 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 18.10 Cosmic Cuttlefish\n  \e[1m3\e[0m - 19.04 Disco Dingo (latest daily build)\n\n"
 
       while :
       do
@@ -239,7 +236,7 @@ do
       mkdir $udir
       cd $udir
       wget -O ubuntu.tar.gz http://cdimage.ubuntu.com/ubuntu-base/$([ $vers = 19.04 ] && printf daily/current/$name || printf releases/$vers/release/ubuntu-base-$vers)-base-armhf.tar.gz || errd
-      tar -xf ubuntu.tar.gz --exclude=var/lib/apt/lists/* # Exclude because of authentication problem
+      tar -xf ubuntu.tar.gz
       rm ubuntu.tar.gz
 
       cat << EOF >etc/apt/sources.list
@@ -249,7 +246,6 @@ deb http://ports.ubuntu.com/ubuntu-ports $name-updates main multiverse restricte
 deb http://ports.ubuntu.com/ubuntu-ports $name-backports main multiverse restricted universe
 EOF
 
-      echo "Acquire::AllowInsecureRepositories \"true\";" >etc/apt/apt.conf.d/01allow-insecure-repos # The repository authentication does not work
       mkdir autostart mnt/HDD mnt/Internal mnt/Synology # The files in 'autostart' directory are automatically executed when the router is started
       rm etc/resolv.conf etc/localtime # Required for internet connection and local time (OpenVPN log)
       ln -s /mnt/Synology/etc/resolv.conf etc/resolv.conf
