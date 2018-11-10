@@ -34,7 +34,7 @@ Usage:
 sh -c "$(wget -O- goo.gl/Pkyohd)"
 ```
 
-![](https://logout.hu/dl/upc/2018-11/180556_executor.png)
+![](https://prohardver.hu/dl/upc/2018-11/180556_executor.png)
 
 ## entware_install.sh
 
@@ -55,7 +55,7 @@ opkg update # Update the package list
 opkg upgrade # Upgrade the packages
 ```
 
-![](https://logout.hu/dl/upc/2018-05/180556_entware.png)
+![](https://prohardver.hu/dl/upc/2018-05/180556_entware.png)
 
 ## ubuntu_install.sh
 
@@ -78,7 +78,7 @@ apt-upgrade # Upgrade the packages
 uroot # Chroot into the Ubuntu installation
 ```
 
-![](https://logout.hu/dl/upc/2018-05/180556_ubuntu.png)
+![](https://prohardver.hu/dl/upc/2018-05/180556_ubuntu.png)
 
 ## transmission_install.sh
 
@@ -101,7 +101,7 @@ Usage:
 sh -c "$(wget -O- goo.gl/Hs8yNU)"
 ```
 
-![](https://logout.hu/dl/upc/2018-01/180556_transmission_2.png)
+![](https://prohardver.hu/dl/upc/2018-01/180556_transmission_2.png)
 
 ## openvpn_install.sh
 
@@ -131,7 +131,7 @@ Usage:
 sh -c "$(wget -O- goo.gl/nxXR9Q)"
 ```
 
-![](https://logout.hu/dl/upc/2018-01/180556_openvpn_4.png)
+![](https://prohardver.hu/dl/upc/2018-01/180556_openvpn_4.png)
 
 ## minidlna_install.sh
 
@@ -148,7 +148,7 @@ Usage:
 sh -c "$(wget -O- goo.gl/y7HbAJ)"
 ```
 
-![](https://logout.hu/dl/upc/2018-01/180556_minidlna_2.png)
+![](https://prohardver.hu/dl/upc/2018-01/180556_minidlna_2.png)
 
 ## gerbera_install.sh
 
@@ -166,7 +166,7 @@ Usage:
 sh -c "$(wget -O- goo.gl/wYzAU1)"
 ```
 
-![](https://logout.hu/dl/upc/2018-01/180556_gerbera.png)
+![](https://prohardver.hu/dl/upc/2018-01/180556_gerbera.png)
 
 ## plex_install.sh
 
@@ -190,7 +190,7 @@ Usage:
 sh -c "$(wget -O- goo.gl/WDG9ih)"
 ```
 
-![](https://logout.hu/dl/upc/2018-01/180556_plex_2.png)
+![](https://prohardver.hu/dl/upc/2018-01/180556_plex_2.png)
 
 ## nfs_setup.sh
 
@@ -206,7 +206,7 @@ Usage:
 sh -c "$(wget -O- goo.gl/kHHpwN)"
 ```
 
-![](https://logout.hu/dl/upc/2018-05/180556_nfs.png)
+![](https://prohardver.hu/dl/upc/2018-05/180556_nfs.png)
 
 ## services_control.sh
 
@@ -220,4 +220,4 @@ Usage:
 sh -c "$(wget -O- goo.gl/ynPr4p)"
 ```
 
-![](https://logout.hu/dl/upc/2018-10/180556_services.png)
+![](https://prohardver.hu/dl/upc/2018-10/180556_services.png)
