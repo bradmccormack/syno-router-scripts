@@ -4,18 +4,19 @@
 # Compatible only with the other scripts from the collection
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=2.0 # 2018.10.28
+vers=2.1 # 2019.01.12
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 # Service name : Entware startup script : and package name : and process name : Ubuntu startup script : and package name : and process name
 table="\
 Transmission:S88transmission:transmission-daemon-openssl transmission-remote-openssl transmission-web:transmission-daemon transmission.sh:transmission.sh:transmission-daemon transmission-cli:transmission-daemon transmission.sh
+WireGuard:S50wireguard:WG:WG:wireguard.sh:WG:WG
 OpenVPN:S20openvpn:openvpn-openssl:openvpn:openvpn.sh:openvpn:openvpn
 MiniDLNA:S90minidlna:minidlna:minidlna:minidlna.sh:minidlna:minidlnad
 Gerbera:S90gerbera:gerbera:gerbera:gerbera.sh:gerbera:gerbera
@@ -39,6 +40,12 @@ error()
 
 pkill()
 {
+  # WireGuard is running in the kernel space
+  [ "$1" = WG ] && {
+      ifconfig wg0 >/dev/null 2>&1 && ip link del wg0 && rmmod wireguard.ko
+      return 0
+    }
+
   pidof $1 || return 0
   killall $1
   cnt=20 # Plex can be slow
@@ -52,7 +59,9 @@ pkill()
 
 pdetect()
 {
-  pidof $1 >/dev/null && {
+  [ "$1" = WG ] && cmd="ifconfig wg0" || cmd="pidof $1" # WireGuard is running in the kernel-space
+
+  $cmd >/dev/null 2>&1 && {
       echo "  running"
       t2="${t2}:running"
     } || {
@@ -188,21 +197,33 @@ EOF
               pkill "$(printf "$t2" | awk -F : "NR==$o {printf \$5}")"
               pkgs="$(printf "$t2" | awk -F : "NR==$o {printf \$7}")"
 
-              if [ "$pkgs" != PLEX ]
-              then
-                $(printf "$t2" | awk -F : "NR==$o {printf \$8}") $pkgs
+              # WireGuard and Plex have been installed outside the packages system
+              case $pkgs in
+                WG)
+                  if [ "${loc:0:1}" = E ]
+                  then rm /opt/bin/wg /opt/etc/init.d/S50wireguard /opt/lib/modules/wireguard.ko
+                  else rm /ubuntu/autostart/wireguard.sh /ubuntu/usr/local/bin/wg /ubuntu/usr/local/lib/modules/wireguard.ko
+                  fi
 
-                if [ "${loc:0:1}" = U ]
-                then
-                  chroot /ubuntu /usr/bin/apt --allow-unauthenticated autoremove --purge -y # Purge only the dependecies
-                  rm $(printf "$t2" | awk -F : "NR==$o {printf \$4}")
-                elif [ "$name" = Transmission ]
-                then rm /opt/etc/init.d/S88transmission-blist /opt/transmission.sh
-                fi
-              elif [ "${loc:0:1}" = E ]
-              then rm -rf /opt/etc/init.d/S90plexmediaserver /opt/lib/plexmediaserver
-              else rm -rf /ubuntu/autostart/plexmediaserver.sh /ubuntu/usr/lib/plexmediaserver
-              fi
+                  ;;
+                PLEX)
+                  if [ "${loc:0:1}" = E ]
+                  then rm -rf /opt/etc/init.d/S90plexmediaserver /opt/lib/plexmediaserver
+                  else rm -rf /ubuntu/autostart/plexmediaserver.sh /ubuntu/usr/lib/plexmediaserver
+                  fi
+
+                  ;;
+                *)
+                  $(printf "$t2" | awk -F : "NR==$o {printf \$8}") $pkgs
+
+                  if [ "${loc:0:1}" = U ]
+                  then
+                    chroot /ubuntu /usr/bin/apt --allow-unauthenticated autoremove --purge -y # Purge only the dependecies
+                    rm $(printf "$t2" | awk -F : "NR==$o {printf \$4}")
+                  elif [ "$name" = Transmission ]
+                  then rm /opt/etc/init.d/S88transmission-blist /opt/transmission.sh
+                  fi
+              esac
 
               sync
               break

@@ -3,13 +3,13 @@
 # Scripts collection executor for Synology routers
 # https://gitlab.com/Kendek/syno-router-scripts
 #
-# 2018, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=1.5 # 2018.11.02
+vers=1.6 # 2019.01.12
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 dlink=https://gitlab.com/Kendek/syno-router-scripts/raw/master/ # Download from here
 
@@ -19,6 +19,7 @@ entware_install.sh
 ubuntu_install.sh
 ubuntu_install_rt1900ac.sh
 transmission_install.sh
+wireguard_install.sh
 openvpn_install.sh
 minidlna_install.sh
 gerbera_install.sh

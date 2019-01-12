@@ -14,6 +14,7 @@ Currently supported models:
 - [entware_install.sh](#entware_installsh)
 - [ubuntu_install.sh](#ubuntu_installsh)
 - [transmission_install.sh](#transmission_installsh)
+- [wireguard_install.sh](#wireguard_installsh)
 - [openvpn_install.sh](#openvpn_installsh)
 - [minidlna_install.sh](#minidlna_installsh)
 - [gerbera_install.sh](#gerbera_installsh)
@@ -102,6 +103,36 @@ sh -c "$(wget -O- goo.gl/Hs8yNU)"
 ```
 
 ![](https://prohardver.hu/dl/upc/2018-01/180556_transmission_2.png)
+
+## wireguard_install.sh
+
+This installer script is help to install a secure WireGuard server through Entware or Ubuntu.  
+Only supports the RT2600ac and MR2200ac models, the RT1900ac has a too old Linux kernel.
+
+Requirements:
+- SSH connection with 'root' user (admin password)
+- Entware or Ubuntu chroot environment, installed with above scripts
+- Own and globally-unique public IPv4 address, without carrier-grade NAT
+- Optionally, a compatible WireGuard client
+
+Necessary firewall rules for connection:
+
+ Protocol | Source IP              | Source port | Destination IP            | Destination port | Action
+:--------:|:----------------------:|:-----------:|:-------------------------:|:----------------:|:------:
+ UDP      | All                    | All         | SRM                       | 51820            | Allow
+
+Necessary firewall rules for access to local network:
+
+ Protocol | Source IP              | Source port | Destination IP            | Destination port | Action
+:--------:|:----------------------:|:-----------:|:-------------------------:|:----------------:|:------:
+ TCP/UDP  | 10.7.0.0/255.255.255.0 | All         | All                       | All              | Allow
+
+Usage:
+```sh
+sh -c "$(wget -O- goo.gl/FuupYm)"
+```
+
+![](https://prohardver.hu/dl/upc/2019-01/180556_wireguard_3.png)
 
 ## openvpn_install.sh
 
