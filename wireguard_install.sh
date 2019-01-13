@@ -13,7 +13,7 @@
 # NOTE: only IPv4 since the router has limited IPv6 NAT support
 #
 
-vers=1.0 # 2019.01.12
+vers=1.1 # 2019.01.13
 syno_routers="MR2200ac RT2600ac" # Supported models, the RT1900ac has an older kernel
 
 error()
@@ -135,7 +135,7 @@ setup()
 
   if [ $1 -eq 1 ]
   then
-    [ -d $2$5/wireguard ] || mkdir $2$5/wireguard
+    [ -d $2$5/wireguard ] || (umask 177 ; mkdir $2$5/wireguard)
     setting $2 $3 $5
   elif lsmod | grep -q wireguard
   then
