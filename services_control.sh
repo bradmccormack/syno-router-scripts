@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=2.1 # 2019.01.12
+vers=2.2 # 2019.01.14
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 # Service name : Entware startup script : and package name : and process name : Ubuntu startup script : and package name : and process name
@@ -40,9 +40,9 @@ error()
 
 pkill()
 {
-  # WireGuard is running in the kernel space
+  # WireGuard is running in the kernel space, the wireguard-go daemon is shutting down if the interface is deleted
   [ "$1" = WG ] && {
-      ifconfig wg0 >/dev/null 2>&1 && ip link del wg0 && rmmod wireguard.ko
+      ifconfig wg0 >/dev/null 2>&1 && ip link del wg0 && lsmod | grep -q ^wireguard && rmmod wireguard.ko
       return 0
     }
 
@@ -59,7 +59,7 @@ pkill()
 
 pdetect()
 {
-  [ "$1" = WG ] && cmd="ifconfig wg0" || cmd="pidof $1" # WireGuard is running in the kernel-space
+  [ "$1" = WG ] && cmd="ifconfig wg0" || cmd="pidof $1" # WireGuard and the wireguard-go daemon is detectable with the wg0 interface
 
   $cmd >/dev/null 2>&1 && {
       echo "  running"
@@ -178,13 +178,16 @@ EOF
                 fi
               elif [ "${loc:0:1}" = E ]
               then
-                sed -i s/^ENABLED=no/ENABLED=yes/ $path
-                $path start
+                if [ "$name" = OpenVPN ]
+                then lsmod | grep -q ^tun || insmod /lib/modules/tun.ko
+                elif [ "$name" = Transmission ]
+                then
+                  sed -i s/^ENABLED=no/ENABLED=yes/ $path-blist
+                  setsid $path-blist start
+                fi
 
-                [ "$name" = Transmission ] && {
-                    sed -i s/^ENABLED=no/ENABLED=yes/ $path-blist
-                    setsid $path-blist start
-                  }
+                sed -i s/^ENABLED=no/ENABLED=yes/ $path
+                setsid $path start
               else
                 chmod +x $path
                 setsid chroot /ubuntu ${path:7} >/dev/null 2>&1
@@ -201,8 +204,8 @@ EOF
               case $pkgs in
                 WG)
                   if [ "${loc:0:1}" = E ]
-                  then rm /opt/bin/wg /opt/etc/init.d/S50wireguard /opt/lib/modules/wireguard.ko
-                  else rm /ubuntu/autostart/wireguard.sh /ubuntu/usr/local/bin/wg /ubuntu/usr/local/lib/modules/wireguard.ko
+                  then rm /opt/bin/wg /opt/bin/wireguard-go /opt/etc/init.d/S50wireguard /opt/lib/modules/wireguard.ko 2>/dev/null
+                  else rm /ubuntu/autostart/wireguard.sh /ubuntu/usr/local/bin/wg /ubuntu/usr/local/bin/wireguard-go /ubuntu/usr/local/lib/modules/wireguard.ko 2>/dev/null
                   fi
 
                   ;;
@@ -237,8 +240,13 @@ EOF
                 if [ "${loc:0:1}" = U ]
                 then setsid chroot /ubuntu ${path:7} >/dev/null 2>&1
                 else
+                  [ "$name" = OpenVPN ] && {
+                      lsmod | grep -q ^tun || insmod /lib/modules/tun.ko
+                    } || {
+                      [ "$name" = Transmission ] && setsid $path-blist start
+                    }
+
                   setsid $path start
-                  [ "$name" = Transmission ] && setsid $path-blist start
                 fi
               fi
 

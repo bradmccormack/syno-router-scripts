@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# WireGuard server installer script for Linux 4.4.60 based Synology routers
+# WireGuard server installer script for Synology routers
 # Compatible with Entware (soft-float) and Ubuntu chroot (hard-float)
 # Tested only on RT2600ac in Wireless Router mode
 #
@@ -10,11 +10,11 @@
 # I will not take any responsibility!
 #
 #
-# NOTE: only IPv4 since the router has limited IPv6 NAT support
+# NOTE: only IPv4 since the routers have limited IPv6 NAT support
 #
 
-vers=1.1 # 2019.01.13
-syno_routers="MR2200ac RT2600ac" # Supported models, the RT1900ac has an older kernel
+vers=1.2 # 2019.01.14
+syno_routers="MR2200ac RT2600ac RT1900ac"
 
 error()
 {
@@ -78,12 +78,19 @@ get()
       qrencode -o $odir/${rname}_wg-client$3.png <$2/${rname}.conf # Can be scanned from the Android app
       rm $2/${rname}.conf
       ;;
+    set)
+      ifconfig wg0 >/dev/null 2>&1 && \
+        if [ "$go" ] && [ "${wg:1:1}" = u ]
+        then chroot /ubuntu /usr/local/bin/wg setconf wg0 /usr/local/etc/wireguard/wg0.conf
+        else $wg setconf wg0 $cdir/wg0.conf
+        fi
+      ;;
     env)
-      if [ -s /opt/lib/modules/wireguard.ko ]
+      if [ -s /opt/lib/modules/wireguard.ko ] || [ -s /opt/bin/wireguard-go ]
       then
         [ "$2" ] && odir=$(readlink /opt | sed "s/\/entware//")
         return 0
-      elif [ -s /ubuntu/usr/local/lib/modules/wireguard.ko ]
+      elif [ -s /ubuntu/usr/local/lib/modules/wireguard.ko ] || [ -s /ubuntu/usr/local/bin/wireguard-go ]
       then
         [ "$2" ] && odir=$(readlink /ubuntu | sed "s/\/ubuntu//")
         return 1
@@ -130,17 +137,22 @@ setup()
 {
   wget -O $2$3/wg goo.gl/PVdfcq || errd
   chmod +x $2$3/wg
-  [ -d $2$4 ] || mkdir $2$4
-  wget -O $2$4/wireguard.ko goo.gl/$([ "$rname" = RT2600ac ] && printf 8mQdtn || printf rmKsWr) || errd
+  ifconfig wg0 >/dev/null 2>&1 && ip link del wg0
 
-  if [ $1 -eq 1 ]
+  if [ "$go" ]
   then
+    wget -O $2$3/wireguard-go goo.gl/L97gXo || errd
+    chmod +x $2$3/wireguard-go
+  else
+    [ -d $2$4 ] || mkdir $2$4
+    wget -O $2$4/wireguard.ko goo.gl/$([ "$rname" = RT2600ac ] && printf 8mQdtn || printf rmKsWr) || errd
+  fi
+
+  if [ $1 -eq 2 ]
+  then lsmod | grep -q ^wireguard && rmmod wireguard.ko
+  else
     [ -d $2$5/wireguard ] || (umask 177 ; mkdir $2$5/wireguard)
     setting $2 $3 $5
-  elif lsmod | grep -q wireguard
-  then
-    ifconfig wg0 >/dev/null 2>&1 && ip link del wg0
-    rmmod wireguard.ko
   fi
 }
 
@@ -148,7 +160,8 @@ setup()
 rname="$(head -c 8 /proc/sys/kernel/syno_hw_version 2>/dev/null)"
 printf "$rname" | egrep -q $(printf "$syno_routers" | sed "s/ /|/g") || error 2
 ping -c 1 www.google.com >/dev/null 2>&1 || error 3
-printf "\e[2J\e[1;1H\ec\n\e[1mWireGuard server installer script for Linux 4.4.60-based Synology routers\n%66sv$vers by Kendek\n 1\e[0m - Install through the existing Entware environment\n \e[1m2\e[0m - Install through the existing Ubuntu chroot environment\n \e[1m3\e[0m - Update the wireguard.ko kernel module and the wg utility\n \e[1m4\e[0m - Add an additional peer and create .zip and .png files\n \e[1m5\e[0m - Reinitialize the current configuration\n \e[1m0\e[0m - Quit (default)\n\n"
+[ "$rname" = RT1900ac ] && go=1 || go="" # Using wireguard-go on RT1900ac
+printf "\e[2J\e[1;1H\ec\n\e[1mWireGuard server installer script for Synology routers v$vers by Kendek\n\n 1\e[0m - Install through the existing Entware environment\n \e[1m2\e[0m - Install through the existing Ubuntu chroot environment\n \e[1m3\e[0m - Update the $([ "$go" ] && printf "wireguard-go daemon binary" || printf "wireguard.ko kernel module") and the wg utility\n \e[1m4\e[0m - Add an additional peer and create .zip and .png files\n \e[1m5\e[0m - Reinitialize the current configuration\n \e[1m0\e[0m - Quit (default)\n\n"
 
 while :
 do
@@ -157,8 +170,8 @@ do
   case $o in
     1)
       [ -f /opt/bin/opkg ] || error 4
-      [ -f /opt/lib/modules/wireguard.ko ] && error 6
-      [ -s /ubuntu/usr/local/lib/modules/wireguard.ko ] && error 7
+      [ -s /opt/lib/modules/wireguard.ko ] || [ -s /opt/bin/wireguard-go ] && error 6
+      [ -s /ubuntu/usr/local/lib/modules/wireguard.ko ] || [ -s /ubuntu/usr/local/bin/wireguard-go ] && error 7
       [ $(df /opt | awk "NR==2 {printf \$4}") -lt 262144 ] && error 9 # 256 MiB free space check
       odir=$(readlink /opt | sed "s/\/entware//")
       setup 1 /opt /bin /lib/modules /etc
@@ -175,7 +188,7 @@ ENABLED=yes
 
 start()
 {
-  ip link add wg0 type wireguard && \\
+  $([ "$go" ] && printf "lsmod | grep -q ^tun || insmod /lib/modules/tun.ko\n  WG_I_PREFER_BUGGY_USERSPACE_TO_POLISHED_KMOD=1 /opt/bin/wireguard-go wg0 >/dev/null 2>&1" || printf "ip link add wg0 type wireguard") && \\
   ip addr add 10.7.0.1/24 dev wg0 && \\
   /opt/bin/wg setconf wg0 /opt/etc/wireguard/wg0.conf && \\
   ip link set wg0 up && \\
@@ -188,21 +201,18 @@ start()
 
 case \$1 in
   start)
-    ifconfig wg0 >/dev/null 2>&1 && printf "\\n \\e[1mAlready running!\\e[0m\\n\\n" || {
-        insmod /opt/lib/modules/wireguard.ko
-        start
-      }
+    ifconfig wg0 >/dev/null 2>&1 && printf "\\n \\e[1mAlready running!\\e[0m\\n\\n" || $([ "$go" ] && printf start || printf "{\n%8sinsmod /opt/lib/modules/wireguard.ko\n%8sstart\n%6s}\n")
     ;;
   stop)
     ! ifconfig wg0 >/dev/null 2>&1 && printf "\\n \\e[1mAlready stopped!\\e[0m\\n\\n" || {
-        ip link del wg0 && rmmod wireguard.ko && printf "\\n \\e[1mDone\\e[0m\\n\\n" >&2 || {
+        ip link del wg0$([ "$go" ] || printf " && rmmod wireguard.ko") && printf "\\n \\e[1mDone\\e[0m\\n\\n" >&2 || {
             printf "\\n \\e[1;31mFailed!\\e[0m\\n\\n" >&2
             exit 4
           }
       }
     ;;
   restart)
-    ifconfig wg0 >/dev/null 2>&1 && ip link del wg0 || insmod /opt/lib/modules/wireguard.ko
+    ifconfig wg0 >/dev/null 2>&1 && ip link del wg0$([ "$go" ] || printf " || insmod /opt/lib/modules/wireguard.ko")
     start
     ;;
   *)
@@ -217,8 +227,8 @@ EOF
       ;;
     2)
       [ -f /ubuntu/usr/bin/apt ] || error 5
-      [ -f /ubuntu/usr/local/lib/modules/wireguard.ko ] && error 6
-      [ -s /opt/lib/modules/wireguard.ko ] && error 8
+      [ -s /ubuntu/usr/local/lib/modules/wireguard.ko ] || [ -s /ubuntu/usr/local/bin/wireguard-go ] && error 6
+      [ -s /opt/lib/modules/wireguard.ko ] || [ -s /opt/bin/wireguard-go ] && error 8
       [ $(df /ubuntu | awk "NR==2 {printf \$4}") -lt 262144 ] && error 9 # 256 MiB free space check
 
       [ -f /ubuntu/bin/ip ] && [ -f /ubuntu/bin/kmod ] && [ -f /ubuntu/sbin/ifconfig ] || {
@@ -235,8 +245,7 @@ EOF
 #!/bin/sh
 
 ifconfig wg0 || {
-    insmod /usr/local/lib/modules/wireguard.ko
-    ip link add wg0 type wireguard
+    $([ "$go" ] && printf "lsmod | grep -q ^tun || insmod /mnt/Synology/lib/modules/tun.ko\n%4sWG_I_PREFER_BUGGY_USERSPACE_TO_POLISHED_KMOD=1 wireguard-go wg0" || printf "insmod /usr/local/lib/modules/wireguard.ko\n%4sip link add wg0 type wireguard")
     ip addr add 10.7.0.1/24 dev wg0
     wg setconf wg0 /usr/local/etc/wireguard/wg0.conf
     ip link set wg0 up
@@ -260,7 +269,7 @@ EOF
         }
 
       sync
-      printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n The wireguard.ko kernel module and the wg utility is successfully updated$msg.\e[0m\n\n"
+      printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n The $([ "$go" ] && printf "wireguard-go daemon binary" || printf "wireguard.ko kernel module") and the wg utility is successfully updated$msg.\e[0m\n\n"
       exit 0
       ;;
     4)
@@ -299,7 +308,7 @@ EOF
 
       get zpng $cdir $((--cnum))
       sync
-      ifconfig wg0 >/dev/null 2>&1 && $wg setconf wg0 $cdir/wg0.conf
+      get set
       printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n The ${rname}_wg-client$cnum .png and .zip files are successfully created in the\n '$odir'.\e[0m\n\n"
       exit 0
       ;;
@@ -310,7 +319,7 @@ EOF
       fi
 
       sync
-      ifconfig wg0 >/dev/null 2>&1 && $wg setconf wg0 $cdir/wg0.conf
+      get set
       printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n The new ${rname}_wg-client1 .png and .zip files are successfully created in\n the '$odir'.\e[0m\n\n"
       exit 0
       ;;
