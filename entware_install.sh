@@ -4,13 +4,13 @@
 # Soft-float
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=1.8 # 2018.10.18
+vers=1.9 # 2019.01.15
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -57,7 +57,7 @@ setup()
 {
   grep -q ^PATH=.*:/opt/bin:/opt/sbin$ /root/.profile || sed -i "/^PATH=/s/$/:\/opt\/bin:\/opt\/sbin/" /root/.profile
   sfile=/usr/local/etc/rc.d/entware.sh
-  csum=e8621939146763c9e4195e5702b6138b # Avoid unnecessary write operations on the internal eMMC chip
+  csum=c71aefc0268c0942d08cbb7d4b8c7bd9 # Avoid unnecessary write operations on the internal eMMC chip
 
   if [ -s $sfile ] && [ "$(python -c "import hashlib ; print(hashlib.md5(open('$sfile', 'rb').read()).hexdigest())")" =  "$csum" ] # 'md5sum' is missing from the router system
   then touch -m $sfile # Close the already running startup script
@@ -83,7 +83,7 @@ entware()
           }
 
         [ -e /opt/swapfile ] && swapon -p 1000 /opt/swapfile
-        [ ! -f /opt/etc/init.d/S20openvpn ] || lsmod | grep -q ^tun || insmod /lib/modules/tun.ko
+        grep ^ENABLED=yes /opt/etc/init.d/S20openvpn && ! lsmod | grep ^tun && insmod /lib/modules/tun.ko
         /opt/etc/init.d/rc.unslung start
         exit 0
       done

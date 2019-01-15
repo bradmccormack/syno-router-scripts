@@ -4,7 +4,7 @@
 # Hard-float - VFPv3-D16
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
@@ -19,7 +19,7 @@
 #       kernel-related issue, corrected by workaround
 #
 
-vers=1.12 # 2018.11.02
+vers=1.13 # 2019.01.15
 syno_routers="RT1900ac" # Supported models
 
 error()
@@ -74,7 +74,7 @@ alias apt-upgrade="apt update 2>/dev/null ; apt dist-upgrade ; apt autoremove --
 EOF
 
   sfile=/usr/local/etc/rc.d/ubuntu.sh
-  csum=99c33e5cca6c2b44031c81f1ba8ff0b6 # Avoid unnecessary write operations on the internal eMMC chip
+  csum=7fb751b29f4f6e45ccaebe902ad54d5b # Avoid unnecessary write operations on the internal eMMC chip
 
   if [ -s $sfile ] && [ "$(python -c "import hashlib ; print(hashlib.md5(open('$sfile', 'rb').read()).hexdigest())")" =  "$csum" ] # 'md5sum' is missing from the router system
   then touch -m $sfile # Close the already running startup script
@@ -99,7 +99,7 @@ ubuntu()
             ln -s \$mp/ubuntu /ubuntu
           }
 
-        grep -q "/ubuntu/dev " /proc/self/mounts || {
+        grep "/ubuntu/dev " /proc/self/mounts || {
             mount --bind /dev /ubuntu/dev
             mount -t devpts -o rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000 pts /ubuntu/dev/pts
             mount -t tmpfs -o rw,nosuid,nodev,relatime shm /ubuntu/dev/shm
