@@ -35,7 +35,7 @@ Usage:
 sh -c "$(wget -O- goo.gl/Pkyohd)"
 ```
 
-![](https://prohardver.hu/dl/upc/2018-11/180556_executor.png)
+![](https://prohardver.hu/dl/upc/2019-01/180556_executor.png)
 
 ## entware_install.sh
 
@@ -251,4 +251,4 @@ Usage:
 sh -c "$(wget -O- goo.gl/ynPr4p)"
 ```
 
-![](https://prohardver.hu/dl/upc/2018-10/180556_services.png)
+![](https://prohardver.hu/dl/upc/2019-01/180556_services.png)
