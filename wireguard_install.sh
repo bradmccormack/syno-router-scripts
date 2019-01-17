@@ -13,7 +13,7 @@
 # NOTE: only IPv4 since the routers have limited IPv6 NAT support
 #
 
-vers=1.2 # 2019.01.14
+vers=1.3 # 2019.01.17
 syno_routers="MR2200ac RT2600ac RT1900ac"
 
 error()
@@ -188,12 +188,12 @@ ENABLED=yes
 
 start()
 {
-  $([ "$go" ] && printf "lsmod | grep -q ^tun || insmod /lib/modules/tun.ko\n  WG_I_PREFER_BUGGY_USERSPACE_TO_POLISHED_KMOD=1 /opt/bin/wireguard-go wg0 >/dev/null 2>&1" || printf "ip link add wg0 type wireguard") && \\
+  $([ "$go" ] && printf "lsmod | grep -q ^tun || insmod /lib/modules/tun.ko\n  /opt/bin/wireguard-go wg0 >/dev/null 2>&1" || printf "ip link add wg0 type wireguard") && \\
   ip addr add 10.7.0.1/24 dev wg0 && \\
   /opt/bin/wg setconf wg0 /opt/etc/wireguard/wg0.conf && \\
   ip link set wg0 up && \\
   ifconfig wg0 mtu 1432 txqueuelen 1000 && \\
-  printf "\\n \\e[1mDone\\e[0m\\n\\n" >&2 || {
+  printf "\\n \\e[1mDone\\e[0m\\n\\n" || {
       printf "\\n \\e[1;31mFailed!\\e[0m\\n\\n" >&2
       exit 3
     }
@@ -205,7 +205,7 @@ case \$1 in
     ;;
   stop)
     ! ifconfig wg0 >/dev/null 2>&1 && printf "\\n \\e[1mAlready stopped!\\e[0m\\n\\n" || {
-        ip link del wg0$([ "$go" ] || printf " && rmmod wireguard.ko") && printf "\\n \\e[1mDone\\e[0m\\n\\n" >&2 || {
+        ip link del wg0$([ "$go" ] || printf " && rmmod wireguard.ko") && printf "\\n \\e[1mDone\\e[0m\\n\\n" || {
             printf "\\n \\e[1;31mFailed!\\e[0m\\n\\n" >&2
             exit 4
           }
@@ -222,7 +222,7 @@ esac
 EOF
 
       chmod +x /opt/etc/init.d/S50wireguard
-      /opt/etc/init.d/S50wireguard start
+      setsid /opt/etc/init.d/S50wireguard start
       break
       ;;
     2)
@@ -245,7 +245,7 @@ EOF
 #!/bin/sh
 
 ifconfig wg0 || {
-    $([ "$go" ] && printf "lsmod | grep -q ^tun || insmod /mnt/Synology/lib/modules/tun.ko\n%4sWG_I_PREFER_BUGGY_USERSPACE_TO_POLISHED_KMOD=1 wireguard-go wg0" || printf "insmod /usr/local/lib/modules/wireguard.ko\n%4sip link add wg0 type wireguard")
+    $([ "$go" ] && printf "lsmod | grep -q ^tun || insmod /mnt/Synology/lib/modules/tun.ko\n%4swireguard-go wg0" || printf "insmod /usr/local/lib/modules/wireguard.ko\n%4sip link add wg0 type wireguard")
     ip addr add 10.7.0.1/24 dev wg0
     wg setconf wg0 /usr/local/etc/wireguard/wg0.conf
     ip link set wg0 up
@@ -254,7 +254,7 @@ ifconfig wg0 || {
 EOF
 
       chmod +x /ubuntu/autostart/wireguard.sh
-      chroot /ubuntu /autostart/wireguard.sh >/dev/null 2>&1
+      setsid chroot /ubuntu /autostart/wireguard.sh >/dev/null 2>&1
       break
       ;;
     3)
