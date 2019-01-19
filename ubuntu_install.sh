@@ -4,7 +4,7 @@
 # Hard-float - VFPv3-D16
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
@@ -15,7 +15,7 @@
 #                                  19.04 latest daily build
 #
 
-vers=1.12 # 2018.11.02
+vers=1.14 # 2019.01.19
 syno_routers="MR2200ac RT2600ac" # Supported models
 
 error()
@@ -130,7 +130,7 @@ EOF
   fi
 
   [ -x $sfile ] || chmod +x $sfile
-  $sfile start $1
+  setsid $sfile start $1
 
   until
     sleep 1s

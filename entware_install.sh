@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.9 # 2019.01.15
+vers=1.10 # 2019.01.19
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -101,7 +101,7 @@ EOF
 
   [ -x $sfile ] || chmod +x $sfile
   sync
-  $sfile start $1
+  setsid $sfile start $1
   printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n The opkg package manager is ready,\n just perform a logout from this SSH session, and login again.\e[0m\n\n"
   exit 0
 }

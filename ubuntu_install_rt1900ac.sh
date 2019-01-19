@@ -19,7 +19,7 @@
 #       kernel-related issue, corrected by workaround
 #
 
-vers=1.13 # 2019.01.15
+vers=1.14 # 2018.11.19
 syno_routers="RT1900ac" # Supported models
 
 error()
@@ -134,7 +134,7 @@ EOF
   fi
 
   [ -x $sfile ] || chmod +x $sfile
-  $sfile start $1
+  setsid $sfile start $1
 
   until
     sleep 1s
