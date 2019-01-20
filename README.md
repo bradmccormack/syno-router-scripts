@@ -106,13 +106,13 @@ sh -c "$(wget -O- goo.gl/Hs8yNU)"
 
 ## wireguard_install.sh
 
-This installer script is help to install a secure WireGuard server through Entware or Ubuntu.  
+This installer script is help to install a secure WireGuard server through Entware or Ubuntu, or into the router's internal storage.  
 The RT1900ac uses wireguard-go user-space implementation because it has a too old Linux kernel.
 
 Requirements:
 - SSH connection with 'root' user (admin password)
-- Entware or Ubuntu chroot environment, installed with above scripts
 - Own and globally-unique public IPv4 address, without carrier-grade NAT
+- Optionally, Entware or Ubuntu chroot environment, installed with above scripts
 - Optionally, a compatible WireGuard client
 
 Necessary firewall rules for connection:
@@ -132,7 +132,7 @@ Usage:
 sh -c "$(wget -O- goo.gl/FuupYm)"
 ```
 
-![](https://prohardver.hu/dl/upc/2019-01/180556_wireguard_4.png)
+![](https://prohardver.hu/dl/upc/2019-01/180556_wireguard_5.png)
 
 ## openvpn_install.sh
 

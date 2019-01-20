@@ -13,7 +13,7 @@
 # NOTE: only IPv4 since the routers have limited IPv6 NAT support
 #
 
-vers=1.3 # 2019.01.17
+vers=1.4 # 2019.01.19
 syno_routers="MR2200ac RT2600ac RT1900ac"
 
 error()
@@ -46,9 +46,12 @@ error()
       printf "The WireGuard is already installed on Entware!\n Secondary installation is not a good idea."
       ;;
     9)
-      printf "Sorry, but not enough free space to install the WireGuard!"
+      printf "The WireGuard is already installed in the router's internal storage!\n Secondary installation is not a good idea."
       ;;
     10)
+      printf "Sorry, but not enough free space to install the WireGuard!"
+      ;;
+    11)
       printf "Sorry, but failed to detect any existing WireGuard installation!"
   esac
 
@@ -65,6 +68,13 @@ errd()
 get()
 {
   case $1 in
+    chk)
+      [ -s /volume1/WireGuard/lib/modules/wireguard.ko ] || [ -s /volume1/WireGuard/bin/wireguard-go ] && {
+          [ "${2:1:1}" = v ] && error 6 || error 9
+        }
+
+      [ $(df $2 | awk "NR==2 {printf \$4}") -lt 262144 ] && error 10 # 256 MiB free space check
+      ;;
     ddns)
       local ddns=$(grep -m 1 hostname= /etc/ddns.conf | cut -d = -f 2)
       [ "$ddns" ] && printf $ddns || wget -qO- v4.ifconfig.co # Using external IP address as a backup
@@ -72,11 +82,20 @@ get()
     dns)
       for ip in $(grep ^nameserver /etc/resolv.conf | egrep -o "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}") ; do printf "$ip, " ; done | sed "s/, $//g"
       ;;
+    tmpf)
+      tmpf=/tmp/WG_$(tr -dc a-zA-Z0-9 </dev/urandom | head -c 16)/$rname.conf
+      (umask 177 ; mkdir ${tmpf%/*})
+      ;;
     zpng)
-      [ "$4" ] && rm $odir/${rname}_wg-client*.zip $odir/${rname}_wg-client*.png 2>/dev/null
-      zip -j $odir/${rname}_wg-client$3 $2/${rname}.conf # Can be imported in the Android app
-      qrencode -o $odir/${rname}_wg-client$3.png <$2/${rname}.conf # Can be scanned from the Android app
-      rm $2/${rname}.conf
+      if [ "${2:1:1}" = v ]
+      then qrc="$(qrencode -t ansiutf8 <$tmpf)" # Show QR code at the end
+      else
+        [ "$4" ] && rm $odir/${rname}_wg-client*.zip $odir/${rname}_wg-client*.png 2>/dev/null
+        zip -j $odir/${rname}_wg-client$3 $tmpf # Can be imported in the Android app
+        qrencode -o $odir/${rname}_wg-client$3.png <$tmpf # Can be scanned from the Android app
+      fi
+
+      rm -rf ${tmpf%/*}
       ;;
     set)
       ifconfig wg0 >/dev/null 2>&1 && \
@@ -84,6 +103,11 @@ get()
         then chroot /ubuntu /usr/local/bin/wg setconf wg0 /usr/local/etc/wireguard/wg0.conf
         else $wg setconf wg0 $cdir/wg0.conf
         fi
+      ;;
+    qrc)
+      while read -n 1 -t 1 ; do : ; done # Flush input buffer
+      read -sn 1 -p "$(printf "\e[1mPress any key to show the client's $([ "$2" ] && printf "new ")QR code.\e[0m") "
+      printf "\e[2J\e[1;1H\ec$qrc\n"
       ;;
     env)
       if [ -s /opt/lib/modules/wireguard.ko ] || [ -s /opt/bin/wireguard-go ]
@@ -94,7 +118,9 @@ get()
       then
         [ "$2" ] && odir=$(readlink /ubuntu | sed "s/\/ubuntu//")
         return 1
-      else error 10
+      elif [ -s /volume1/WireGuard/lib/modules/wireguard.ko ] || [ -s /volume1/WireGuard/bin/wireguard-go ]
+      then return 2
+      else error 11
       fi
   esac
 }
@@ -104,6 +130,7 @@ setting()
   wg=$1$2/wg
   cdir=$1$3/wireguard
   pkey1=$($wg genkey) pkey2=$($wg genkey)
+  get tmpf
 
   cat << EOF >$cdir/wg0.conf
 [Interface]
@@ -116,7 +143,7 @@ AllowedIPs = 10.7.0.2/32
 EOF
 
   # Mtu 1432 because 1492 PPPoE max - 20 IPv4 header - 8 UDP header - 4 type - 4 key index - 8 nonce - 16 authentication tag
-  cat << EOF >$cdir/${rname}.conf
+  cat << EOF >$tmpf
 [Interface]
 PrivateKey = $pkey2
 Address = 10.7.0.2/32
@@ -161,18 +188,19 @@ rname="$(head -c 8 /proc/sys/kernel/syno_hw_version 2>/dev/null)"
 printf "$rname" | egrep -q $(printf "$syno_routers" | sed "s/ /|/g") || error 2
 ping -c 1 www.google.com >/dev/null 2>&1 || error 3
 [ "$rname" = RT1900ac ] && go=1 || go="" # Using wireguard-go on RT1900ac
-printf "\e[2J\e[1;1H\ec\n\e[1mWireGuard server installer script for Synology routers v$vers by Kendek\n\n 1\e[0m - Install through the existing Entware environment\n \e[1m2\e[0m - Install through the existing Ubuntu chroot environment\n \e[1m3\e[0m - Update the $([ "$go" ] && printf "wireguard-go daemon binary" || printf "wireguard.ko kernel module") and the wg utility\n \e[1m4\e[0m - Add an additional peer and create .zip and .png files\n \e[1m5\e[0m - Reinitialize the current configuration\n \e[1m0\e[0m - Quit (default)\n\n"
+qrc=""
+printf "\e[2J\e[1;1H\ec\n\e[1mWireGuard server installer script for Synology routers v$vers by Kendek\n\n 1\e[0m - Install through the existing Entware environment\n \e[1m2\e[0m - Install through the existing Ubuntu chroot environment\n \e[1m3\e[0m - Install to the router's internal storage\n \e[1m4\e[0m - Update the $([ "$go" ] && printf "wireguard-go daemon binary" || printf "wireguard.ko kernel module") and the wg utility\n \e[1m5\e[0m - Add an additional peer and $([ -d /volume1/WireGuard ] && printf "show the client's QR code" || printf "create .zip and .png files")\n \e[1m6\e[0m - Reinitialize the current configuration\n \e[1m0\e[0m - Quit (default)\n\n"
 
 while :
 do
-  read -p "Select an option [0-5]: " o
+  read -p "Select an option [0-6]: " o
 
   case $o in
     1)
       [ -f /opt/bin/opkg ] || error 4
       [ -s /opt/lib/modules/wireguard.ko ] || [ -s /opt/bin/wireguard-go ] && error 6
       [ -s /ubuntu/usr/local/lib/modules/wireguard.ko ] || [ -s /ubuntu/usr/local/bin/wireguard-go ] && error 7
-      [ $(df /opt | awk "NR==2 {printf \$4}") -lt 262144 ] && error 9 # 256 MiB free space check
+      get chk /opt
       odir=$(readlink /opt | sed "s/\/entware//")
       setup 1 /opt /bin /lib/modules /etc
 
@@ -229,7 +257,7 @@ EOF
       [ -f /ubuntu/usr/bin/apt ] || error 5
       [ -s /ubuntu/usr/local/lib/modules/wireguard.ko ] || [ -s /ubuntu/usr/local/bin/wireguard-go ] && error 6
       [ -s /opt/lib/modules/wireguard.ko ] || [ -s /opt/bin/wireguard-go ] && error 8
-      [ $(df /ubuntu | awk "NR==2 {printf \$4}") -lt 262144 ] && error 9 # 256 MiB free space check
+      get chk /ubuntu
 
       [ -f /ubuntu/bin/ip ] && [ -f /ubuntu/bin/kmod ] && [ -f /ubuntu/sbin/ifconfig ] || {
           chroot /ubuntu /usr/bin/apt update 2>/dev/null
@@ -258,32 +286,73 @@ EOF
       break
       ;;
     3)
+      [ -s /opt/lib/modules/wireguard.ko ] || [ -s /opt/bin/wireguard-go ] && error 8
+      [ -s /ubuntu/usr/local/lib/modules/wireguard.ko ] || [ -s /ubuntu/usr/local/bin/wireguard-go ] && error 7
+      get chk /volume1
+      mkdir -p /volume1/WireGuard/bin /volume1/WireGuard/etc
+      [ "$go" ] || mkdir /volume1/WireGuard/lib
+      setup 1 /volume1 /WireGuard/bin /WireGuard/lib/modules /WireGuard/etc
+      grep -q ^PATH=.*:/opt/bin:/opt/sbin$ /root/.profile && sed -i "s/:\/opt\//:\/volume1\/WireGuard\/bin:\/opt\//" /root/.profile || sed -i "/^PATH=/s/$/:\/volume1\/WireGuard\/bin/" /root/.profile
+
+      cat << EOF >/usr/local/etc/rc.d/wireguard.sh
+#!/bin/sh
+
+wireguard()
+{
+  ifconfig wg0 || {
+      $([ "$go" ] && printf "lsmod | grep -q ^tun || insmod /lib/modules/tun.ko\n%6s/volume1/WireGuard/bin/wireguard-go wg0" || printf "insmod /volume1/WireGuard/lib/modules/wireguard.ko\n%6sip link add wg0 type wireguard")
+      ip addr add 10.7.0.1/24 dev wg0
+      /volume1/WireGuard/bin/wg setconf wg0 /volume1/WireGuard/etc/wireguard/wg0.conf
+      ip link set wg0 up
+      ifconfig wg0 mtu 1432 txqueuelen 1000
+    }
+}
+
+[ "\$1" = start ] && wireguard >/dev/null 2>&1 &
+EOF
+
+      chmod +x /usr/local/etc/rc.d/wireguard.sh
+      setsid /usr/local/etc/rc.d/wireguard.sh start
+      break
+      ;;
+    4)
       msg=" and\n the WireGuard server is restarted"
 
       get env && {
           setup 2 /opt /bin /lib/modules
-          grep -q ^ENABLED=yes /opt/etc/init.d/S50wireguard && /opt/etc/init.d/S50wireguard start || msg=""
+          grep -q ^ENABLED=yes /opt/etc/init.d/S50wireguard && setsid /opt/etc/init.d/S50wireguard start || msg=""
         } || {
-          setup 2 /ubuntu /usr/local/bin /usr/local/lib/modules
-          [ -x /ubuntu/autostart/wireguard.sh ] && chroot /ubuntu /autostart/wireguard.sh >/dev/null 2>&1 || msg=""
+          [ $? -eq 1 ] && {
+              setup 2 /ubuntu /usr/local/bin /usr/local/lib/modules
+              [ -x /ubuntu/autostart/wireguard.sh ] && setsid chroot /ubuntu /autostart/wireguard.sh >/dev/null 2>&1 || msg=""
+            } || {
+              setup 2 /volume1 /WireGuard/bin /WireGuard/lib/modules
+              [ -x /usr/local/etc/rc.d/wireguard.sh ] && setsid /usr/local/etc/rc.d/wireguard.sh start || msg=""
+            }
         }
 
       sync
       printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n The $([ "$go" ] && printf "wireguard-go daemon binary" || printf "wireguard.ko kernel module") and the wg utility is successfully updated$msg.\e[0m\n\n"
       exit 0
       ;;
-    4)
+    5)
       get env o && {
           wg=/opt/bin/wg
           cdir=/opt/etc/wireguard
         } || {
-          wg=/ubuntu/usr/local/bin/wg
-          cdir=/ubuntu/usr/local/etc/wireguard
+          [ $? -eq 1 ] && {
+              wg=/ubuntu/usr/local/bin/wg
+              cdir=/ubuntu/usr/local/etc/wireguard
+            } || {
+              wg=/volume1/WireGuard/bin/wg
+              cdir=/volume1/WireGuard/etc/wireguard
+            }
         }
 
       pkey1=$(grep ^PrivateKey $cdir/wg0.conf | cut -d " " -f 3)
       cnum=$(($(grep PublicKey $cdir/wg0.conf | wc -l) + 2))
       pkey2=$($wg genkey)
+      get tmpf
 
       cat << EOF >>$cdir/wg0.conf
 
@@ -292,7 +361,7 @@ PublicKey = $(printf $pkey2 | $wg pubkey)
 AllowedIPs = 10.7.0.$cnum/32
 EOF
 
-      cat << EOF >$cdir/${rname}.conf
+      cat << EOF >$tmpf
 [Interface]
 PrivateKey = $pkey2
 Address = 10.7.0.$cnum/32
@@ -309,18 +378,22 @@ EOF
       get zpng $cdir $((--cnum))
       sync
       get set
-      printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n The ${rname}_wg-client$cnum .png and .zip files are successfully created in the\n '$odir'.\e[0m\n\n"
+      printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\e[0m\n\n"
+      [ ! "$qrc" ] && printf "\e[1m The ${rname}_wg-client$cnum .png and .zip files are successfully created in the\n '$odir'.\e[0m\n\n" || get qrc
       exit 0
       ;;
-    5)
+    6)
       if get env o
       then setting /opt /bin /etc r
-      else setting /ubuntu /usr/local/bin /usr/local/etc r
+      elif [ $? -eq 1 ]
+      then setting /ubuntu /usr/local/bin /usr/local/etc r
+      else setting /volume1 /WireGuard/bin /WireGuard/etc
       fi
 
       sync
       get set
-      printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n The new ${rname}_wg-client1 .png and .zip files are successfully created in\n the '$odir'.\e[0m\n\n"
+      printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\e[0m\n\n"
+      [ ! "$qrc" ] && printf "\e[1m The new ${rname}_wg-client1 .png and .zip files are successfully created in\n the '$odir'.\e[0m\n\n" || get qrc n
       exit 0
       ;;
     ""|0)
@@ -330,4 +403,5 @@ EOF
 done
 
 sync
-printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n The ${rname}_wg-client1 .png and .zip files are successfully created in the\n '$odir'.\n\n Please set the following firewall rules in the SRM:\n\n  Protocol        Source IP        Source port   Dest. IP   Dest. port   Action\n ===============================================================================\n    UDP              All               All         SRM        51820      Allow\n  TCP/UDP   10.7.0.0/255.255.255.0     All         All         All       Allow\n\n Note that you may not be able to connect if the router is behind a\n carrier-grade NAT!\e[0m\n\n"
+printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n $([ "$qrc" ] && printf "The wg utility is ready, just perform a logout from this SSH session, and\n login again" || printf "The ${rname}_wg-client1 .png and .zip files are successfully created in the\n '$odir'").\n\n Please set the following firewall rules in the SRM:\n\n  Protocol        Source IP        Source port   Dest. IP   Dest. port   Action\n ===============================================================================\n    UDP              All               All         SRM        51820      Allow\n  TCP/UDP   10.7.0.0/255.255.255.0     All         All         All       Allow\n\n Note that you may not be able to connect if the router is behind a\n carrier-grade NAT!\e[0m\n\n"
+[ "$qrc" ] && get qrc || exit 0

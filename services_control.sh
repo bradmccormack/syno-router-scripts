@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=2.2 # 2019.01.14
+vers=2.3 # 2019.01.19
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 # Service name : Entware startup script : and package name : and process name : Ubuntu startup script : and package name : and process name
@@ -48,10 +48,10 @@ pkill()
 
   pidof $1 || return 0
   killall $1
-  cnt=20 # Plex can be slow
+  cnt=40 # Plex can be slow
 
   while pidof $1 && [ $((cnt--)) -ne 0 ]
-  do sleep 1s
+  do usleep 500000
   done
 
   pidof $1 && killall -9 $1
@@ -89,15 +89,13 @@ do
   do
     let ++cnt
     name="${serv%%:*}"
-    epath=/opt/etc/init.d/$(printf "$serv" | cut -d : -f 2)
-    upath=/ubuntu/autostart/$(printf "$serv" | cut -d : -f 5)
 
-    if [ -f $epath ]
+    if path=/opt/etc/init.d/$(printf "$serv" | cut -d : -f 2) && [ -f $path ]
     then
       t2="$t2$name:"
       printf " \e[1m$cnt\e[0m - $name $(printf "%$(($mlen-${#name}))s") installed on Entware  "
 
-      grep -q ^ENABLED=yes $epath && {
+      grep -q ^ENABLED=yes $path && {
           printf " enabled"
           t2="${t2}enabled"
         } || {
@@ -107,13 +105,13 @@ do
 
       pname="$(printf "$serv" | cut -d : -f 4)"
       pdetect $pname
-      t2="$t2:$epath:$pname:E:$(printf "$serv" | cut -d : -f 3):/opt/bin/opkg remove --autoremove\n"
-    elif [ -f $upath ]
+      t2="$t2:$path:$pname:E:$(printf "$serv" | cut -d : -f 3):/opt/bin/opkg remove --autoremove\n"
+    elif path=/ubuntu/autostart/$(printf "$serv" | cut -d : -f 5) && [ -f $path ]
     then
       t2="$t2$name:"
       printf " \e[1m$cnt\e[0m - $name $(printf "%$(($mlen-${#name}))s") installed on Ubuntu   "
 
-      [ -x $upath ] && {
+      [ -x $path ] && {
           printf " enabled"
           t2="${t2}enabled"
         } || {
@@ -123,7 +121,22 @@ do
 
       pname="$(printf "$serv" | cut -d : -f 7)"
       pdetect $pname
-      t2="$t2:$upath:$pname:U:$(printf "$serv" | cut -d : -f 6):chroot /ubuntu /usr/bin/apt --allow-unauthenticated remove -y\n"
+      t2="$t2:$path:$pname:U:$(printf "$serv" | cut -d : -f 6):chroot /ubuntu /usr/bin/apt --allow-unauthenticated remove -y\n"
+    elif [ "$name" = WireGuard ] && path=/usr/local/etc/rc.d/wireguard.sh && [ -f $path ]
+    then
+      t2="$t2$name:"
+      printf " \e[1m$cnt\e[0m - $name $(printf "%$(($mlen-9))s") installed internally  "
+
+      [ -x $path ] && {
+          printf " enabled"
+          t2="${t2}enabled"
+        } || {
+          printf disabled
+          t2="${t2}disabled"
+        }
+
+      pdetect WG
+      t2="$t2:$path:WG:I:WG\n"
     else
       echo " # - $name $(printf "%$(($mlen-${#name}))s") not installed"
       t2="$t2\n"
@@ -144,7 +157,18 @@ EOF
         name="$(printf "$t2" | awk -F : "NR==$o {printf \$1}")"
         ss=$(printf "$t2" | awk -F : "NR==$o {printf \$2}")
         ps=$(printf "$t2" | awk -F : "NR==$o {printf \$3}")
-        [ "$(printf "$t2" | awk -F : "NR==$o {printf \$6}")" = E ] && loc="Entware ($(readlink /opt))" || loc="Ubuntu ($(readlink /ubuntu))"
+
+        case $(printf "$t2" | awk -F : "NR==$o {printf \$6}") in
+          E)
+            loc="Entware ($(readlink /opt))"
+            ;;
+          U)
+            loc="Ubuntu ($(readlink /ubuntu))"
+            ;;
+          I)
+            loc="Internal storage (/volume1)"
+        esac
+
         printf "\e[2J\e[1;1H\ec\n Service:  \e[1m$name\e[0m\n Location: \e[1m$loc\e[0m\n Status:   \e[1m$ss\e[0m\n Process:  \e[1m$ps\e[0m \n\n  \e[1m1\e[0m - "
         cnt=1
 
@@ -190,7 +214,13 @@ EOF
                 setsid $path start
               else
                 chmod +x $path
-                setsid chroot /ubuntu ${path:7} >/dev/null 2>&1
+
+                if [ "${loc:0:1}" = U ]
+                then setsid chroot /ubuntu ${path:7} >/dev/null 2>&1
+                else
+                  setsid /usr/local/etc/rc.d/wireguard.sh start
+                  usleep 500000
+                fi
               fi
 
               sync
@@ -203,10 +233,17 @@ EOF
               # WireGuard and Plex have been installed outside the packages system
               case $pkgs in
                 WG)
-                  if [ "${loc:0:1}" = E ]
-                  then rm /opt/bin/wg /opt/bin/wireguard-go /opt/etc/init.d/S50wireguard /opt/lib/modules/wireguard.ko 2>/dev/null
-                  else rm /ubuntu/autostart/wireguard.sh /ubuntu/usr/local/bin/wg /ubuntu/usr/local/bin/wireguard-go /ubuntu/usr/local/lib/modules/wireguard.ko 2>/dev/null
-                  fi
+                  case ${loc:0:1} in
+                    E)
+                      rm -f /opt/bin/wg /opt/bin/wireguard-go /opt/etc/init.d/S50wireguard /opt/lib/modules/wireguard.ko
+                      ;;
+                    U)
+                      rm -f /ubuntu/autostart/wireguard.sh /ubuntu/usr/local/bin/wg /ubuntu/usr/local/bin/wireguard-go /ubuntu/usr/local/lib/modules/wireguard.ko
+                      ;;
+                    I)
+                      rm -rf /usr/local/etc/rc.d/wireguard.sh /volume1/WireGuard
+                      sed -i "s/:\/volume1\/WireGuard\/bin//" /root/.profile
+                  esac
 
                   ;;
                 PLEX)
@@ -237,17 +274,23 @@ EOF
               else
                 path=$(printf "$t2" | awk -F : "NR==$o {printf \$4}")
 
-                if [ "${loc:0:1}" = U ]
-                then setsid chroot /ubuntu ${path:7} >/dev/null 2>&1
-                else
-                  [ "$name" = OpenVPN ] && {
-                      lsmod | grep -q ^tun || insmod /lib/modules/tun.ko
-                    } || {
-                      [ "$name" = Transmission ] && setsid $path-blist start
-                    }
+                case ${loc:0:1} in
+                  E)
+                    [ "$name" = OpenVPN ] && {
+                        lsmod | grep -q ^tun || insmod /lib/modules/tun.ko
+                      } || {
+                        [ "$name" = Transmission ] && setsid $path-blist start
+                      }
 
-                  setsid $path start
-                fi
+                    setsid $path start
+                    ;;
+                  U)
+                    setsid chroot /ubuntu ${path:7} >/dev/null 2>&1
+                    ;;
+                  I)
+                    setsid /usr/local/etc/rc.d/wireguard.sh start
+                    usleep 500000
+                esac
               fi
 
               break
