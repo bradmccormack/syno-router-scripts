@@ -14,7 +14,7 @@
 #
 
 vers=1.4 # 2019.01.19
-syno_routers="MR2200ac RT2600ac RT1900ac"
+syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
 {
