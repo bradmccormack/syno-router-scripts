@@ -241,7 +241,7 @@ sh -c "$(wget -O- goo.gl/kHHpwN)"
 
 ## services_control.sh
 
-This control script is help to disable, enable and uninstall the Transmission, OpenVPN, MiniDLNA, Gerbera and Plex Media Server services.
+This control script is help to disable, enable, stop, start and uninstall the Transmission, WireGuard, OpenVPN, MiniDLNA, Gerbera and Plex Media Server services.
 
 Requirements:
 - SSH connection with 'root' user (admin password)
