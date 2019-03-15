@@ -4,14 +4,14 @@
 # Compatible with Entware and Ubuntu chroot
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=1.21 # 2018.12.19
-plex_vers=1.14.1.5488-cc260c476 # For download
+vers=1.22 # 2019.03.15
+plex_vers=1.15.1.791-8bec0f76c # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -44,7 +44,7 @@ error()
       printf "Sorry, but not enough free space to install the Plex Media Server!"
       ;;
     9)
-      printf "Sorry, but failed to download the Plex Media Server version $plex_vers!\n Please update the installer."
+      printf "Sorry, but failed to download the Plex Media Server version ${plex_vers%\-*}!\n Please update the installer."
   esac
 
   printf "\n\n The script is ended without any effect!\e[0m\n\n"
@@ -54,7 +54,7 @@ error()
 setup()
 {
   [ $(df . | awk "NR==2 {printf \$4}") -lt 524288 ] && error 8 # 512 MiB free space check
-  wget -O plex.tar https://downloads.plex.tv/plex-media-server/$plex_vers/PlexMediaServer-$plex_vers-arm7.spk || error 9
+  wget -O plex.tar https://downloads.plex.tv/plex-media-server-new/$plex_vers/synology/PlexMediaServer-$plex_vers-armv7hf_neon.spk || error 9
   tar -xf plex.tar package.tgz
   rm plex.tar
 
