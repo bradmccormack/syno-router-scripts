@@ -13,7 +13,7 @@
 # NOTE: only IPv4 since the routers have limited IPv6 NAT support
 #
 
-vers=1.4 # 2019.01.19
+vers=1.5 # 2019.04.01
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -70,10 +70,13 @@ get()
   case $1 in
     chk)
       [ -s /volume1/WireGuard/lib/modules/wireguard.ko ] || [ -s /volume1/WireGuard/bin/wireguard-go ] && {
-          [ "${2:1:1}" = v ] && error 6 || error 9
+          [ "${2:1:1}" = v ] || error 9
+          grep -q ^PATH=.*:/volume1/WireGuard/bin /root/.profile || return 1
+          error 6
         }
 
       [ $(df $2 | awk "NR==2 {printf \$4}") -lt 262144 ] && error 10 # 256 MiB free space check
+      return 0
       ;;
     ddns)
       local ddns=$(grep -m 1 hostname= /etc/ddns.conf | cut -d = -f 2)
@@ -189,7 +192,7 @@ printf "$rname" | egrep -q $(printf "$syno_routers" | sed "s/ /|/g") || error 2
 ping -c 1 www.google.com >/dev/null 2>&1 || error 3
 [ "$rname" = RT1900ac ] && go=1 || go="" # Using wireguard-go on RT1900ac
 qrc=""
-printf "\e[2J\e[1;1H\ec\n\e[1mWireGuard server installer script for Synology routers v$vers by Kendek\n\n 1\e[0m - Install through the existing Entware environment\n \e[1m2\e[0m - Install through the existing Ubuntu chroot environment\n \e[1m3\e[0m - Install to the router's internal storage\n \e[1m4\e[0m - Update the $([ "$go" ] && printf "wireguard-go daemon binary" || printf "wireguard.ko kernel module") and the wg utility\n \e[1m5\e[0m - Add an additional peer and $([ -d /volume1/WireGuard ] && printf "show the client's QR code" || printf "create .zip and .png files")\n \e[1m6\e[0m - Reinitialize the current configuration\n \e[1m0\e[0m - Quit (default)\n\n"
+printf "\e[2J\e[1;1H\ec\n\e[1mWireGuard server installer script for Synology routers v$vers by Kendek\n\n 1\e[0m - Install through the existing Entware environment\n \e[1m2\e[0m - Install through the existing Ubuntu chroot environment\n \e[1m3\e[0m - Install to the router's internal storage or repair missing wg utility\n \e[1m4\e[0m - Update the $([ "$go" ] && printf "wireguard-go daemon binary" || printf "wireguard.ko kernel module") and the wg utility\n \e[1m5\e[0m - Add an additional peer and $([ -d /volume1/WireGuard ] && printf "show the client's QR code" || printf "create .zip and .png files")\n \e[1m6\e[0m - Reinitialize the current configuration\n \e[1m0\e[0m - Quit (default)\n\n"
 
 while :
 do
@@ -289,12 +292,14 @@ EOF
       [ -s /opt/lib/modules/wireguard.ko ] || [ -s /opt/bin/wireguard-go ] && error 8
       [ -s /ubuntu/usr/local/lib/modules/wireguard.ko ] || [ -s /ubuntu/usr/local/bin/wireguard-go ] && error 7
       get chk /volume1
-      mkdir -p /volume1/WireGuard/bin /volume1/WireGuard/etc
-      [ "$go" ] || mkdir /volume1/WireGuard/lib
-      setup 1 /volume1 /WireGuard/bin /WireGuard/lib/modules /WireGuard/etc
-      grep -q ^PATH=.*:/opt/bin:/opt/sbin$ /root/.profile && sed -i "s/:\/opt\//:\/volume1\/WireGuard\/bin:\/opt\//" /root/.profile || sed -i "/^PATH=/s/$/:\/volume1\/WireGuard\/bin/" /root/.profile
+      rv=$?
 
-      cat << EOF >/usr/local/etc/rc.d/wireguard.sh
+      [ $rv -eq 0 ] && {
+          mkdir -p /volume1/WireGuard/bin /volume1/WireGuard/etc
+          [ "$go" ] || mkdir /volume1/WireGuard/lib
+          setup 1 /volume1 /WireGuard/bin /WireGuard/lib/modules /WireGuard/etc
+
+          cat << EOF >/usr/local/etc/rc.d/wireguard.sh
 #!/bin/sh
 
 wireguard()
@@ -311,9 +316,15 @@ wireguard()
 [ "\$1" = start ] && wireguard >/dev/null 2>&1 &
 EOF
 
-      chmod +x /usr/local/etc/rc.d/wireguard.sh
-      setsid /usr/local/etc/rc.d/wireguard.sh start
-      break
+          chmod +x /usr/local/etc/rc.d/wireguard.sh
+          setsid /usr/local/etc/rc.d/wireguard.sh start
+        }
+
+      grep -q ^PATH=.*:/opt/bin:/opt/sbin$ /root/.profile && sed -i "s/:\/opt\//:\/volume1\/WireGuard\/bin:\/opt\//" /root/.profile || sed -i "/^PATH=/s/$/:\/volume1\/WireGuard\/bin/" /root/.profile
+      [ $rv -eq 0 ] && break
+      sync
+      printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\e[0m\n\n The wg utility is ready, just perform a logout from this SSH session, and\n login again\e[0m\n\n"
+      exit 0
       ;;
     4)
       msg=" and\n the WireGuard server is restarted"
