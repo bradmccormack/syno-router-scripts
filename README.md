@@ -133,7 +133,7 @@ Usage:
 sh -c "$(wget -O- goo.gl/FuupYm)"
 ```
 
-![](https://prohardver.hu/dl/upc/2019-04/180556_wireguard.png)
+![](https://prohardver.hu/dl/upc/2019-04/180556_wireguard_2.png)
 
 ## openvpn_install.sh
 
