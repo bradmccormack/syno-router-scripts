@@ -12,10 +12,10 @@
 #
 # Compatible Ubuntu distributions: 18.04.2 LTS
 #                                  18.10
-#                                  19.04 latest daily build
+#                                  19.04
 #
 
-vers=1.15 # 2019.02.13
+vers=1.16 # 2019.04.18
 syno_routers="MR2200ac RT2600ac" # Supported models
 
 error()
@@ -205,7 +205,7 @@ do
         }
 
       [ $(df $mp | awk "NR==2 {printf \$4}") -lt 1572864 ] && error 7 # 1.5 GiB free space check
-      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.2 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 18.10 Cosmic Cuttlefish\n  \e[1m3\e[0m - 19.04 Disco Dingo (latest daily build)\n\n"
+      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.2 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 18.10 Cosmic Cuttlefish\n  \e[1m3\e[0m - 19.04 Disco Dingo\n\n"
 
       while :
       do
@@ -235,7 +235,7 @@ do
       [ -e $udir ] && mv $udir ${udir}_$(tr -dc a-zA-Z0-9 </dev/urandom | head -c 16) # Backup the existing data
       mkdir $udir
       cd $udir
-      wget -O ubuntu.tar.gz http://cdimage.ubuntu.com/ubuntu-base/$([ $vers = 19.04 ] && printf daily/current/$name || printf releases/$vers/release/ubuntu-base-$vers)-base-armhf.tar.gz || errd
+      wget -O ubuntu.tar.gz http://cdimage.ubuntu.com/ubuntu-base/$([ $vers = 19.10 ] && printf daily/current/$name || printf releases/$vers/release/ubuntu-base-$vers)-base-armhf.tar.gz || errd
       tar -xf ubuntu.tar.gz
       rm ubuntu.tar.gz
 
