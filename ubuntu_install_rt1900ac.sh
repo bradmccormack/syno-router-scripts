@@ -13,13 +13,14 @@
 # Compatible Ubuntu distributions: 18.04.2 LTS
 #                                  18.10
 #                                  19.04
+#                                  19.10 latest daily build
 #
 #
 # NOTE: apt cannot authenticate the repositories on RT1900ac
 #       kernel-related issue, corrected by workaround
 #
 
-vers=1.16 # 2019.04.18
+vers=1.17 # 2019.04.24
 syno_routers="RT1900ac" # Supported models
 
 error()
@@ -209,11 +210,11 @@ do
         }
 
       [ $(df $mp | awk "NR==2 {printf \$4}") -lt 1572864 ] && error 7 # 1.5 GiB free space check
-      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.2 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 18.10 Cosmic Cuttlefish\n  \e[1m3\e[0m - 19.04 Disco Dingo\n\n"
+      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.2 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 18.10 Cosmic Cuttlefish\n  \e[1m3\e[0m - 19.04 Disco Dingo\n  \e[1m4\e[0m - 19.10 Eoan Eanimal (latest daily build)\n\n"
 
       while :
       do
-        read -p "Select an option [1-2]: " o
+        read -p "Select an option [1-4]: " o
 
         case $o in
           ""|1)
@@ -227,6 +228,10 @@ do
           3)
             vers=19.04
             name=disco
+            ;;
+          4)
+            vers=19.10
+            name=eoan
             ;;
           *)
             continue
