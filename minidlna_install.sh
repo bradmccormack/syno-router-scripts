@@ -4,13 +4,13 @@
 # Compatible with Entware (soft-float) and Ubuntu chroot (hard-float)
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=1.7 # 2018.10.28
+vers=1.8 # 2019.06.09
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -63,7 +63,7 @@ setting()
 port=8200
 
 # network interfaces to serve, comma delimited
-network_interface=lbr0
+network_interface=lbr0,wg0
 
 # specify the user account name or uid to run as
 #user=root
