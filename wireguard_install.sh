@@ -13,7 +13,7 @@
 # NOTE: only IPv4 since the routers have limited IPv6 NAT support
 #
 
-vers=1.5 # 2019.04.01
+vers=1.6 # 2019.07.21
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -264,7 +264,7 @@ EOF
 
       [ -f /ubuntu/bin/ip ] && [ -f /ubuntu/bin/kmod ] && [ -f /ubuntu/sbin/ifconfig ] || {
           chroot /ubuntu /usr/bin/apt update 2>/dev/null
-          chroot /ubuntu /usr/bin/apt --allow-unauthenticated dist-upgrade -y
+          chroot /ubuntu /usr/bin/apt --allow-unauthenticated full-upgrade -y
           chroot /ubuntu /usr/bin/apt --allow-unauthenticated install iproute2 kmod net-tools --no-install-recommends -y
           chroot /ubuntu /usr/bin/apt clean
         }

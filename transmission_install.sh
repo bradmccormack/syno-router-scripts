@@ -4,13 +4,13 @@
 # Compatible with Entware (soft-float) and Ubuntu chroot (hard-float)
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=1.9 # 2018.10.28
+vers=1.10 # 2019.07.21
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -195,7 +195,7 @@ EOF
       [ $(df /ubuntu | awk "NR==2 {printf \$4}") -lt 262144 ] && error 9 # 256 MiB free space check
       [ -s /ubuntu/etc/transmission-daemon/settings.json ] && pset=1 || pset="" # Do not override previous settings when reinstall
       chroot /ubuntu /usr/bin/apt update 2>/dev/null
-      chroot /ubuntu /usr/bin/apt --allow-unauthenticated dist-upgrade -y
+      chroot /ubuntu /usr/bin/apt --allow-unauthenticated full-upgrade -y
       chroot /ubuntu /usr/bin/apt --allow-unauthenticated install transmission-daemon transmission-cli --no-install-recommends -y
       chroot /ubuntu /usr/bin/apt clean
       [ -f /ubuntu/usr/bin/transmission-daemon ] || errd

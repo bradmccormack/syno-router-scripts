@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=2.7 # 2019.02.03
+vers=2.8 # 2019.07.21
 easyrsa_vers=3.0.6 # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
@@ -347,7 +347,7 @@ do
       [ -f /opt/sbin/openvpn ] && error 8
       [ $(df /ubuntu | awk "NR==2 {printf \$4}") -lt 262144 ] && error 9 # 256 MiB free space check
       chroot /ubuntu /usr/bin/apt update 2>/dev/null
-      chroot /ubuntu /usr/bin/apt --allow-unauthenticated dist-upgrade -y
+      chroot /ubuntu /usr/bin/apt --allow-unauthenticated full-upgrade -y
       chroot /ubuntu /usr/bin/apt --allow-unauthenticated install ca-certificates kmod openvpn whois --no-install-recommends -y
       chroot /ubuntu /usr/bin/apt clean
       [ -f /ubuntu/usr/sbin/openvpn ] || errd

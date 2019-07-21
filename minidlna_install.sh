@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.8 # 2019.06.09
+vers=1.9 # 2019.07.21
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -183,7 +183,7 @@ do
       [ $(df /ubuntu | awk "NR==2 {printf \$4}") -lt 262144 ] && error 9 # 256 MiB free space check
       [ -s /ubuntu/etc/minidlna.conf ] && pset=1 || pset="" # Do not override previous settings when reinstall
       chroot /ubuntu /usr/bin/apt update 2>/dev/null
-      chroot /ubuntu /usr/bin/apt --allow-unauthenticated dist-upgrade -y
+      chroot /ubuntu /usr/bin/apt --allow-unauthenticated full-upgrade -y
       chroot /ubuntu /usr/bin/apt --allow-unauthenticated install minidlna --no-install-recommends -y
       chroot /ubuntu /usr/bin/apt clean
       [ -f /ubuntu/usr/sbin/minidlnad ] || errd
