@@ -11,7 +11,6 @@
 #
 #
 # Compatible Ubuntu distributions: 18.04.2 LTS
-#                                  18.10
 #                                  19.04
 #                                  19.10 latest daily build
 #
@@ -20,7 +19,7 @@
 #       kernel-related issue, corrected by workaround
 #
 
-vers=1.18 # 2019.05.07
+vers=1.19 # 2019.07.21
 syno_routers="RT1900ac" # Supported models
 
 error()
@@ -71,7 +70,7 @@ setup()
   grep -q "^alias uroot=\"chroot /ubuntu /bin/bash\"$" /root/.profile || cat << EOF >>/root/.profile
 alias uroot="chroot /ubuntu /bin/bash"
 alias apt="chroot /ubuntu /usr/bin/apt --allow-unauthenticated"
-alias apt-upgrade="apt update 2>/dev/null ; apt dist-upgrade ; apt autoremove --purge ; apt clean"
+alias apt-upgrade="apt update 2>/dev/null ; apt full-upgrade ; apt autoremove --purge ; apt clean"
 EOF
 
   sfile=/usr/local/etc/rc.d/ubuntu.sh
@@ -144,7 +143,7 @@ EOF
   done
 
   chroot /ubuntu /usr/bin/apt update 2>/dev/null
-  chroot /ubuntu /usr/bin/apt --allow-unauthenticated dist-upgrade -y
+  chroot /ubuntu /usr/bin/apt --allow-unauthenticated full-upgrade -y
   chroot /ubuntu /usr/bin/apt --allow-unauthenticated install locales -y
   chroot /ubuntu /usr/bin/apt --allow-unauthenticated autoremove --purge -y
   chroot /ubuntu /usr/bin/apt clean
@@ -210,11 +209,11 @@ do
         }
 
       [ $(df $mp | awk "NR==2 {printf \$4}") -lt 1572864 ] && error 7 # 1.5 GiB free space check
-      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.2 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 18.10 Cosmic Cuttlefish\n  \e[1m3\e[0m - 19.04 Disco Dingo\n  \e[1m4\e[0m - 19.10 Eoan Ermine (latest daily build)\n\n"
+      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.2 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 19.04 Disco Dingo\n  \e[1m3\e[0m - 19.10 Eoan Ermine (latest daily build)\n\n"
 
       while :
       do
-        read -p "Select an option [1-4]: " o
+        read -p "Select an option [1-3]: " o
 
         case $o in
           ""|1)
@@ -222,14 +221,10 @@ do
             name=bionic
             ;;
           2)
-            vers=18.10
-            name=cosmic
-            ;;
-          3)
             vers=19.04
             name=disco
             ;;
-          4)
+          3)
             vers=19.10
             name=eoan
             ;;
