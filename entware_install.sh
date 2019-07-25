@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.10 # 2019.01.19
+vers=1.11 # 2019.07.25
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -195,7 +195,7 @@ do
                 continue
             esac
 
-            dd if=/dev/zero of=swapfile bs=1M count=$size # 'fallocate' is missing from the router system
+            hdparm --fallocate $(( $size * 1024 )) swapfile # Use fallocate for fast allocation
             chmod 0600 swapfile
             mkswap swapfile
           }

@@ -19,7 +19,7 @@
 #       kernel-related issue, corrected by workaround
 #
 
-vers=1.19 # 2019.07.21
+vers=1.20 # 2019.07.25
 syno_routers="RT1900ac" # Supported models
 
 error()
@@ -277,7 +277,7 @@ EOF
                 continue
             esac
 
-            dd if=/dev/zero of=swapfile bs=1M count=$size # 'fallocate' is missing from the router system
+            hdparm --fallocate $(( $size * 1024 )) swapfile # Use fallocate for fast allocation
             chmod 0600 swapfile
             mkswap swapfile
           }
