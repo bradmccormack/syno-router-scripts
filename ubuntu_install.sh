@@ -10,12 +10,12 @@
 # I will not take any responsibility!
 #
 #
-# Compatible Ubuntu distributions: 18.04.2 LTS
+# Compatible Ubuntu distributions: 18.04.3 LTS
 #                                  19.04
 #                                  19.10 latest daily build
 #
 
-vers=1.20 # 2019.07.25
+vers=1.21 # 2019.08.08
 syno_routers="MR2200ac RT2600ac" # Supported models
 
 error()
@@ -205,7 +205,7 @@ do
         }
 
       [ $(df $mp | awk "NR==2 {printf \$4}") -lt 1572864 ] && error 7 # 1.5 GiB free space check
-      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.2 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 19.04 Disco Dingo\n  \e[1m3\e[0m - 19.10 Eoan Ermine (latest daily build)\n\n"
+      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.3 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 19.04 Disco Dingo\n  \e[1m3\e[0m - 19.10 Eoan Ermine (latest daily build)\n\n"
 
       while :
       do
@@ -213,7 +213,7 @@ do
 
         case $o in
           ""|1)
-            vers=18.04.2
+            vers=18.04.3
             name=bionic
             ;;
           2)
