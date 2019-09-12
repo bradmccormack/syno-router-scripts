@@ -19,7 +19,7 @@
 #       kernel-related issue, corrected by workaround
 #
 
-vers=1.21 # 2019.08.08
+vers=1.22 # 2019.09.12
 syno_routers="RT1900ac" # Supported models
 
 error()
@@ -74,7 +74,7 @@ alias apt-upgrade="apt update 2>/dev/null ; apt full-upgrade ; apt autoremove --
 EOF
 
   sfile=/usr/local/etc/rc.d/ubuntu.sh
-  csum=7fb751b29f4f6e45ccaebe902ad54d5b # Avoid unnecessary write operations on the internal eMMC chip
+  csum=a478e093304c063872b190f4dc7da971 # Avoid unnecessary write operations on the internal eMMC chip
 
   if [ -s $sfile ] && [ "$(python -c "import hashlib ; print(hashlib.md5(open('$sfile', 'rb').read()).hexdigest())")" =  "$csum" ] # 'md5sum' is missing from the router system
   then touch -m $sfile # Close the already running startup script
@@ -100,7 +100,7 @@ ubuntu()
           }
 
         grep "/ubuntu/dev " /proc/self/mounts || {
-            mount --bind /dev /ubuntu/dev
+            mount -t devtmpfs -o rw,nosuid,relatime,mode=755 dev /ubuntu/dev
             mount -t devpts -o rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000 pts /ubuntu/dev/pts
             mount -t tmpfs -o rw,nosuid,nodev,relatime shm /ubuntu/dev/shm
             mount -t proc proc /ubuntu/proc
