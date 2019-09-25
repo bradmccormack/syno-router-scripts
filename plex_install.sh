@@ -10,8 +10,8 @@
 # I will not take any responsibility!
 #
 
-vers=1.37 # 2019.09.17
-plex_vers=1.16.6.1592-b9d49bdb7 # For download
+vers=1.38 # 2019.09.25
+plex_vers=1.17.0.1709-982421575 # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
