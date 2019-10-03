@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=2.3 # 2019.01.19
+vers=2.4 # 2019.10.03
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 # Service name : Entware startup script : and package name : and process name : Ubuntu startup script : and package name : and process name
@@ -20,7 +20,8 @@ WireGuard:S50wireguard:WG:WG:wireguard.sh:WG:WG
 OpenVPN:S20openvpn:openvpn-openssl:openvpn:openvpn.sh:openvpn:openvpn
 MiniDLNA:S90minidlna:minidlna:minidlna:minidlna.sh:minidlna:minidlnad
 Gerbera:S90gerbera:gerbera:gerbera:gerbera.sh:gerbera:gerbera
-Plex Media Server:S90plexmediaserver:PLEX:PlexMediaServer:plexmediaserver.sh:PLEX:PlexMediaServer"
+Plex Media Server:S90plexmediaserver:PLEX:PlexMediaServer:plexmediaserver.sh:PLEX:PlexMediaServer
+Shell In A Box:S88shellinaboxd:shellinabox:shellinaboxd:shellinabox.sh:shellinabox:shellinaboxd"
 
 error()
 {

@@ -19,6 +19,7 @@ Currently supported models:
 - [minidlna_install.sh](#minidlna_installsh)
 - [gerbera_install.sh](#gerbera_installsh)
 - [plex_install.sh](#plex_installsh)
+- [shellinabox_install.sh](#shellinabox_installsh)
 - [nfs_setup.sh](#nfs_setupsh)
 - [services_control.sh](#services_controlsh)
 
@@ -91,7 +92,7 @@ Requirements:
 - Entware or Ubuntu chroot environment, installed with above scripts
 - A web browser for the WebUI
 
-Necessary firewall rules:
+Necessary firewall rule:
 
  Protocol | Source IP | Source port | Destination IP | Destination port | Action
 :--------:|:---------:|:-----------:|:--------------:|:----------------:|:------:
@@ -116,13 +117,13 @@ Requirements:
 - Optionally, Entware or Ubuntu chroot environment, installed with above scripts
 - Optionally, a compatible WireGuard client
 
-Necessary firewall rules for connection:
+Necessary firewall rule for connection:
 
  Protocol | Source IP              | Source port | Destination IP            | Destination port | Action
 :--------:|:----------------------:|:-----------:|:-------------------------:|:----------------:|:------:
  UDP      | All                    | All         | SRM                       | 51820            | Allow
 
-Necessary firewall rules for access to local network:
+Necessary firewall rule for access to local network:
 
  Protocol | Source IP              | Source port | Destination IP            | Destination port | Action
 :--------:|:----------------------:|:-----------:|:-------------------------:|:----------------:|:------:
@@ -146,13 +147,13 @@ Requirements:
 - Own and globally-unique public IPv4 address, without carrier-grade NAT
 - Optionally, a compatible (v2.4) OpenVPN client
 
-Necessary firewall rules for connection:
+Necessary firewall rule for connection:
 
  Protocol | Source IP              | Source port | Destination IP            | Destination port | Action
 :--------:|:----------------------:|:-----------:|:-------------------------:|:----------------:|:------:
  UDP      | All                    | All         | SRM                       | 1194             | Allow
 
-Necessary firewall rules for access to local network:
+Necessary firewall rule for access to local network:
 
  Protocol | Source IP              | Source port | Destination IP            | Destination port | Action
 :--------:|:----------------------:|:-----------:|:-------------------------:|:----------------:|:------:
@@ -211,7 +212,7 @@ Requirements:
 - At least 512 MiB SWAP
 - A web browser for the WebUI
 
-Necessary firewall rules for remote access:
+Necessary firewall rule for remote access:
 
  Protocol | Source IP | Source port | Destination IP | Destination port | Action
 :--------:|:---------:|:-----------:|:--------------:|:----------------:|:------:
@@ -223,6 +224,31 @@ sh -c "$(wget -O- goo.gl/WDG9ih)"
 ```
 
 ![](https://prohardver.hu/dl/upc/2018-01/180556_plex_2.png)
+
+## shellinabox_install.sh
+
+This installer script is help to install a Shell In A Box web-based terminal emulator through Entware or Ubuntu.  
+By default, Shell In A Box uses the /bin/login on Entware and SSH on Ubuntu.
+
+Requirements:
+- SSH connection with 'root' user (admin password)
+- Entware or Ubuntu chroot environment, installed with above scripts
+- A web browser for the WebUI
+
+Firewall rule for insecure remote access:
+
+ Protocol | Source IP | Source port | Destination IP | Destination port | Action
+:--------:|:---------:|:-----------:|:--------------:|:----------------:|:------:
+ TCP      | All       | All         | SRM            | 4200             | Allow
+
+For security reasons, the WebVPN with a wildcard certificate is recommended for remote access!
+
+Usage:
+```sh
+sh -c "$(wget -O- bit.ly/2pFoN30)"
+```
+
+![](https://prohardver.hu/dl/upc/2019-10/180556_shellinabox.png)
 
 ## nfs_setup.sh
 

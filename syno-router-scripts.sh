@@ -9,7 +9,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.6 # 2019.01.12
+vers=1.7 # 2019.10.03
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 dlink=https://gitlab.com/Kendek/syno-router-scripts/raw/master/ # Download from here
 
@@ -24,6 +24,7 @@ openvpn_install.sh
 minidlna_install.sh
 gerbera_install.sh
 plex_install.sh
+shellinabox_install.sh
 nfs_setup.sh
 services_control.sh"
 

@@ -233,4 +233,4 @@ EOF
 done
 
 sync
-printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n The Transmission WebUI is available on 'http://$(ifconfig lbr0 | egrep -o "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -1):9091'.\n\n Please set the following firewall rules in the SRM:\n\n  Protocol   Source IP   Source port   Dest. IP   Dest. port   Action\n =====================================================================\n  TCP/UDP       All          All         SRM        51413      Allow\e[0m\n\n"
+printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n The Transmission WebUI is available on 'http://$(ifconfig lbr0 | egrep -o "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -1):9091'.\n\n Please set the following firewall rule in the SRM:\n\n  Protocol   Source IP   Source port   Dest. IP   Dest. port   Action\n =====================================================================\n  TCP/UDP       All          All         SRM        51413      Allow\e[0m\n\n"

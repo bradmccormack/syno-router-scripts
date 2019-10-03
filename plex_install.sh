@@ -154,4 +154,4 @@ EOF
 done
 
 sync
-printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n The Plex Media Server WebUI is available on 'http://$(ifconfig lbr0 | egrep -o "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -1):32400/web'.\n\n Firewall rules for remote access:\n\n  Protocol   Source IP   Source port   Dest. IP   Dest. port   Action\n =====================================================================\n    TCP         All          All         SRM        32400      Allow\e[0m\n\n"
+printf "\e[2J\e[1;1H\ec\n \e[1mOkay, all done!\n\n The Plex Media Server WebUI is available on 'http://$(ifconfig lbr0 | egrep -o "[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" | head -1):32400/web'.\n\n Firewall rule for remote access:\n\n  Protocol   Source IP   Source port   Dest. IP   Dest. port   Action\n =====================================================================\n    TCP         All          All         SRM        32400      Allow\e[0m\n\n"
