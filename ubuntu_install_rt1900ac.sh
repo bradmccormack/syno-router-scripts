@@ -12,14 +12,14 @@
 #
 # Compatible Ubuntu distributions: 18.04.3 LTS
 #                                  19.04
-#                                  19.10 latest daily build
-#
+#                                  19.10
+#                                  20.04 LTS latest daily build
 #
 # NOTE: apt cannot authenticate the repositories on RT1900ac
 #       kernel-related issue, corrected by workaround
 #
 
-vers=1.22 # 2019.09.12
+vers=1.23 # 2019.10.21
 syno_routers="RT1900ac" # Supported models
 
 error()
@@ -209,11 +209,11 @@ do
         }
 
       [ $(df $mp | awk "NR==2 {printf \$4}") -lt 1572864 ] && error 7 # 1.5 GiB free space check
-      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.3 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 19.04 Disco Dingo\n  \e[1m3\e[0m - 19.10 Eoan Ermine (latest daily build)\n\n"
+      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.3 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 19.04 Disco Dingo\n  \e[1m3\e[0m - 19.10 Eoan Ermine\n  \e[1m4\e[0m - 20.04 LTS Focal Fossa (latest daily build)\n\n"
 
       while :
       do
-        read -p "Select an option [1-3]: " o
+        read -p "Select an option [1-4]: " o
 
         case $o in
           ""|1)
@@ -228,6 +228,10 @@ do
             vers=19.10
             name=eoan
             ;;
+          4)
+            vers=20.04
+            name=focal
+            ;;
           *)
             continue
         esac
@@ -239,7 +243,7 @@ do
       [ -e $udir ] && mv $udir ${udir}_$(tr -dc a-zA-Z0-9 </dev/urandom | head -c 16) # Backup the existing data
       mkdir $udir
       cd $udir
-      wget -O ubuntu.tar.gz http://cdimage.ubuntu.com/ubuntu-base/$([ $vers = 19.10 ] && printf daily/current/$name || printf releases/$vers/release/ubuntu-base-$vers)-base-armhf.tar.gz || errd
+      wget -O ubuntu.tar.gz http://cdimage.ubuntu.com/ubuntu-base/$([ $vers = 20.04 ] && printf daily/current/$name || printf releases/$vers/release/ubuntu-base-$vers)-base-armhf.tar.gz || errd
       tar -xf ubuntu.tar.gz --exclude=var/lib/apt/lists/* # Exclude because of authentication problem on RT1900ac
       rm ubuntu.tar.gz
 
