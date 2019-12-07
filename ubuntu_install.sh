@@ -71,7 +71,7 @@ alias apt-upgrade="apt update ; apt full-upgrade ; apt autoremove --purge ; apt 
 EOF
 
   sfile=/usr/local/etc/rc.d/ubuntu.sh
-  csum=a478e093304c063872b190f4dc7da971 # Avoid unnecessary write operations on the internal eMMC chip
+  csum=9bdc3d3cdcd06d5dd550ca5620abbb1e # Avoid unnecessary write operations on the internal eMMC chip
 
   if [ -s $sfile ] && [ "$(python -c "import hashlib ; print(hashlib.md5(open('$sfile', 'rb').read()).hexdigest())")" =  "$csum" ] # 'md5sum' is missing from the router system
   then touch -m $sfile # Close the already running startup script
@@ -96,7 +96,7 @@ ubuntu()
             ln -s \$mp/ubuntu /ubuntu
           }
 
-        grep "/ubuntu/dev " /proc/self/mounts || {
+        grep "/ubuntu/dev " /proc/mounts || {
             mount -t devtmpfs -o rw,nosuid,relatime,mode=755 dev /ubuntu/dev
             mount -t devpts -o rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000 pts /ubuntu/dev/pts
             mount -t tmpfs -o rw,nosuid,nodev,relatime shm /ubuntu/dev/shm
