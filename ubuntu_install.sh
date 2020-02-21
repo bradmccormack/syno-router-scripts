@@ -4,19 +4,18 @@
 # Hard-float - VFPv3-D16
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
+# 2019-2020, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 #
-# Compatible Ubuntu distributions: 18.04.3 LTS
-#                                  19.04
+# Compatible Ubuntu distributions: 18.04.4 LTS
 #                                  19.10
 #                                  20.04 LTS latest daily build
 #
 
-vers=1.23 # 2019.10.21
+vers=1.24 # 2020.02.21
 syno_routers="MR2200ac RT2600ac" # Supported models
 
 error()
@@ -206,26 +205,22 @@ do
         }
 
       [ $(df $mp | awk "NR==2 {printf \$4}") -lt 1572864 ] && error 7 # 1.5 GiB free space check
-      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.3 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 19.04 Disco Dingo\n  \e[1m3\e[0m - 19.10 Eoan Ermine\n  \e[1m4\e[0m - 20.04 LTS Focal Fossa (latest daily build)\n\n"
+      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.4 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 19.10 Eoan Ermine\n  \e[1m3\e[0m - 20.04 LTS Focal Fossa (latest daily build)\n\n"
 
       while :
       do
-        read -p "Select an option [1-4]: " o
+        read -p "Select an option [1-3]: " o
 
         case $o in
           ""|1)
-            vers=18.04.3
+            vers=18.04.4
             name=bionic
             ;;
           2)
-            vers=19.04
-            name=disco
-            ;;
-          3)
             vers=19.10
             name=eoan
             ;;
-          4)
+          3)
             vers=20.04
             name=focal
             ;;
