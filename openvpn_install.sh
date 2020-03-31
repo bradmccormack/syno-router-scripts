@@ -4,14 +4,14 @@
 # Compatible with Entware (soft-float) and Ubuntu chroot (hard-float)
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2020, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=2.8 # 2019.07.21
-easyrsa_vers=3.0.6 # For download
+vers=2.9 # 2020.03.31
+easyrsa_vers=3.0.7 # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -64,7 +64,7 @@ setup()
 {
   chmod 700 $1 # Security reasons
   cd $1
-  wget -O easyrsa.tgz https://github.com/OpenVPN/easy-rsa/releases/download/v$easyrsa_vers/EasyRSA-unix-v$easyrsa_vers.tgz || errd
+  wget -O easyrsa.tgz https://github.com/OpenVPN/easy-rsa/releases/download/v$easyrsa_vers/EasyRSA-$easyrsa_vers.tgz || errd
   ersa=$(tr -dc a-zA-Z0-9 </dev/urandom | head -c 16)
   mkdir $ersa
   tar -C $ersa -xf easyrsa.tgz --strip-components 1
