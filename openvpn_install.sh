@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=2.9 # 2020.03.31
+vers=2.10 # 2020.04.17
 easyrsa_vers=3.0.7 # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
@@ -305,10 +305,10 @@ okill()
 {
   pidof openvpn && {
       killall openvpn 2>/dev/null
-      cnt=10
+      cnt=20
 
       while pidof openvpn && [ $((cnt--)) -ne 0 ]
-      do sleep 1s
+      do usleep 500000
       done
 
       pidof openvpn && killall -9 openvpn

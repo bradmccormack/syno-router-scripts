@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.57 # 2020.04.10
+vers=1.58 # 2020.04.17
 plex_vers=1.19.1.2645-ccb6eb67e # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
@@ -62,10 +62,10 @@ setup()
   then
     pidof PlexMediaServer >/dev/null && {
         killall PlexMediaServer
-        cnt=20 # Plex can be slow
+        cnt=40 # Plex can be slow
 
         while pidof PlexMediaServer >/dev/null && [ $((cnt--)) -ne 0 ]
-        do sleep 1s
+        do usleep 500000
         done
 
         pidof PlexMediaServer >/dev/null && killall -9 PlexMediaServer
@@ -118,7 +118,7 @@ ulimit -s 3000
 EOF
 
       chmod +x etc/init.d/S90plexmediaserver
-      /opt/etc/init.d/S90plexmediaserver start
+      etc/init.d/S90plexmediaserver start
       break
       ;;
     2)
