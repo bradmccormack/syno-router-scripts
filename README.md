@@ -16,6 +16,7 @@ Currently supported models:
 - [transmission_install.sh](#transmission_installsh)
 - [wireguard_install.sh](#wireguard_installsh)
 - [openvpn_install.sh](#openvpn_installsh)
+- [adguardhome_install.sh](#adguardhome_installsh)
 - [minidlna_install.sh](#minidlna_installsh)
 - [gerbera_install.sh](#gerbera_installsh)
 - [plex_install.sh](#plex_installsh)
@@ -166,6 +167,25 @@ sh -c "$(wget -O- goo.gl/nxXR9Q)"
 
 ![](https://prohardver.hu/dl/upc/2018-01/180556_openvpn_4.png)
 
+## adguardhome_install.sh
+
+This installer script is help to install an AdGuard Home server through Entware or Ubuntu.  
+The default upstream DNS resolver will be the Cloudflare DoH.  
+The WebUI username and password is **synology**.
+
+Requirements:
+- SSH connection with 'root' user (admin password)
+- Entware or Ubuntu chroot environment, installed with above scripts
+- At least 256 MiB SWAP
+- A web browser for the WebUI
+
+Usage:
+```sh
+sh -c "$(wget -O- bit.ly/2yoBPGx)"
+```
+
+![](https://prohardver.hu/dl/upc/2020-04/180556_adguard.png)
+
 ## minidlna_install.sh
 
 This installer script is help to install a MiniDLNA (ReadyMedia) media server through Entware or Ubuntu.  
@@ -268,7 +288,7 @@ sh -c "$(wget -O- goo.gl/kHHpwN)"
 
 ## services_control.sh
 
-This control script is help to disable, enable, stop, start and uninstall the Transmission, WireGuard, OpenVPN, MiniDLNA, Gerbera, Plex Media Server and Shell In A Box services.
+This control script is help to disable, enable, stop, start and uninstall the Transmission, WireGuard, OpenVPN, AdGuard Home, MiniDLNA, Gerbera, Plex Media Server and Shell In A Box services.
 
 Requirements:
 - SSH connection with 'root' user (admin password)

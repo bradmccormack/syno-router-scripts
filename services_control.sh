@@ -4,13 +4,13 @@
 # Compatible only with the other scripts from the collection
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2020, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=2.4 # 2019.10.03
+vers=2.5 # 2020.04.19
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 # Service name : Entware startup script : and package name : and process name : Ubuntu startup script : and package name : and process name
@@ -18,6 +18,7 @@ table="\
 Transmission:S88transmission:transmission-daemon-openssl transmission-remote-openssl transmission-web:transmission-daemon transmission.sh:transmission.sh:transmission-daemon transmission-cli:transmission-daemon transmission.sh
 WireGuard:S50wireguard:WG:WG:wireguard.sh:WG:WG
 OpenVPN:S20openvpn:openvpn-openssl:openvpn:openvpn.sh:openvpn:openvpn
+AdGuard Home:S99adguardhome:AG:adguardhome:adguardhome.sh:AG:adguardhome
 MiniDLNA:S90minidlna:minidlna:minidlna:minidlna.sh:minidlna:minidlnad
 Gerbera:S90gerbera:gerbera:gerbera:gerbera.sh:gerbera:gerbera
 Plex Media Server:S90plexmediaserver:PLEX:PlexMediaServer:plexmediaserver.sh:PLEX:PlexMediaServer
@@ -41,11 +42,14 @@ error()
 
 pkill()
 {
-  # WireGuard is running in the kernel space, the wireguard-go daemon is shutting down if the interface is deleted
-  [ "$1" = WG ] && {
+  case $1 in
+    WG) # WireGuard is running in the kernel space, the wireguard-go daemon is shutting down if the interface is deleted
       ifconfig wg0 >/dev/null 2>&1 && ip link del wg0 && lsmod | grep -q ^wireguard && rmmod wireguard.ko
       return 0
-    }
+      ;;
+    adguardhome)
+      iptables -t nat -D PREROUTING -i lbr0 -p udp --dport 53 -j REDIRECT --to-port 3053
+  esac
 
   pidof $1 || return 0
   killall $1
@@ -231,7 +235,7 @@ EOF
               pkill "$(printf "$t2" | awk -F : "NR==$o {printf \$5}")"
               pkgs="$(printf "$t2" | awk -F : "NR==$o {printf \$7}")"
 
-              # WireGuard and Plex have been installed outside the packages system
+              # WireGuard, AdGuard Home and Plex have been installed outside the packages system
               case $pkgs in
                 WG)
                   case ${loc:0:1} in
@@ -245,6 +249,13 @@ EOF
                       rm -rf /usr/local/etc/rc.d/wireguard.sh /volume1/WireGuard
                       sed -i "s/:\/volume1\/WireGuard\/bin//" /root/.profile
                   esac
+
+                  ;;
+                AG)
+                  if [ "${loc:0:1}" = E ]
+                  then rm -f /opt/bin/adguardhome /opt/etc/init.d/S99adguardhome
+                  else rm -f /ubuntu/autostart/adguardhome.sh /ubuntu/usr/local/bin/adguardhome
+                  fi
 
                   ;;
                 PLEX)
