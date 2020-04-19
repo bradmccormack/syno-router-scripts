@@ -12,10 +12,9 @@
 #
 # Compatible Ubuntu distributions: 18.04.4 LTS
 #                                  19.10
-#                                  20.04 LTS latest daily build
 #
 
-vers=1.24 # 2020.02.21
+vers=1.25 # 2020.04.19
 syno_routers="MR2200ac RT2600ac" # Supported models
 
 error()
@@ -205,11 +204,11 @@ do
         }
 
       [ $(df $mp | awk "NR==2 {printf \$4}") -lt 1572864 ] && error 7 # 1.5 GiB free space check
-      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.4 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 19.10 Eoan Ermine\n  \e[1m3\e[0m - 20.04 LTS Focal Fossa (latest daily build)\n\n"
+      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.4 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 19.10 Eoan Ermine\n\n"
 
       while :
       do
-        read -p "Select an option [1-3]: " o
+        read -p "Select an option [1-2]: " o
 
         case $o in
           ""|1)
@@ -219,10 +218,6 @@ do
           2)
             vers=19.10
             name=eoan
-            ;;
-          3)
-            vers=20.04
-            name=focal
             ;;
           *)
             continue
@@ -235,7 +230,7 @@ do
       [ -e $udir ] && mv $udir ${udir}_$(tr -dc a-zA-Z0-9 </dev/urandom | head -c 16) # Backup the existing data
       mkdir $udir
       cd $udir
-      wget -O ubuntu.tar.gz http://cdimage.ubuntu.com/ubuntu-base/$([ $vers = 20.04 ] && printf daily/current/$name || printf releases/$vers/release/ubuntu-base-$vers)-base-armhf.tar.gz || errd
+      wget -O ubuntu.tar.gz http://cdimage.ubuntu.com/ubuntu-base/releases/$vers/release/ubuntu-base-$vers-base-armhf.tar.gz || errd
       tar -xf ubuntu.tar.gz
       rm ubuntu.tar.gz
 
@@ -247,7 +242,7 @@ deb http://ports.ubuntu.com/ubuntu-ports $name-backports main multiverse restric
 EOF
 
       mkdir autostart mnt/HDD mnt/Internal mnt/Synology # The files in 'autostart' directory are automatically executed when the router is started
-      rm etc/resolv.conf etc/localtime # Required for internet connection and local time (OpenVPN log)
+      rm -f etc/resolv.conf etc/localtime # Required for internet connection and local time (OpenVPN log)
       ln -s /mnt/Synology/etc/resolv.conf etc/resolv.conf
       ln -s /mnt/Synology/etc/localtime etc/localtime
       while read -n 1 -t 1 ; do : ; done # Flush input buffer
