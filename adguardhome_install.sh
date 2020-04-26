@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.3 # 2020.04.19
+vers=1.4 # 2020.04.26
 adguardhome_vers=0.101.0 # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
@@ -222,18 +222,19 @@ ARGS="-c /opt/etc/adguardhome/adguardhome.conf -w /opt/etc/adguardhome"
 PREARGS=""
 DESC=\$PROCS
 PATH=/opt/sbin:/opt/bin:/sbin:/bin:/usr/sbin:/usr/bin:/usr/syno/sbin:/usr/syno/bin:/usr/local/sbin:/usr/local/bin
+IPTABLES=/sbin/iptables
 IPTRULE="PREROUTING -t nat -i lbr0 -p udp --dport 53 -j REDIRECT --to-port 3053"
 
 . /opt/etc/init.d/rc.func
+rv=\$?
 
 case \$1 in
-  stop)
-    iptables -D \$IPTRULE
-    ;;
   start|restart)
-    [ \$? -eq 0 ] && {
-        iptables -C \$IPTRULE 2>/dev/null || iptables -A \$IPTRULE
-      }
+    [ \$rv -eq 0 ] || exit \$rv
+    \$IPTABLES -C \$IPTRULE 2>/dev/null || \$IPTABLES -A \$IPTRULE
+    ;;
+  stop)
+    \$IPTABLES -D \$IPTRULE
 esac
 EOF
 

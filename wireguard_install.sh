@@ -212,7 +212,7 @@ do
 
 ENABLED=yes
 
-[ "\$ENABLED" = no ] && {
+[ "\$ENABLED" = yes ] || {
     printf "\\n \\e[1mDisabled\\e[0m\\n\\n"
     exit 1
   }
