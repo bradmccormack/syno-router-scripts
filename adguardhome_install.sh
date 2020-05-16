@@ -10,8 +10,8 @@
 # I will not take any responsibility!
 #
 
-vers=1.4 # 2020.04.26
-adguardhome_vers=0.101.0 # For download
+vers=1.5 # 2020.05.16
+adguardhome_vers=0.102.0 # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -59,8 +59,10 @@ bind_port: 3000
 users:
 - name: synology
   password: \$2a\$10\$JVrDPjdmaQkCvdjobQXxM.mQnhTefyfKMXJJdAV/RstG101m95Ch6
+http_proxy: ""
 language: ""
 rlimit_nofile: 0
+debug_pprof: false
 web_session_ttl: 720
 dns:
   bind_host: $bh
@@ -68,31 +70,37 @@ dns:
   statistics_interval: 1
   querylog_enabled: true
   querylog_interval: 30
-  querylog_memsize: 0
+  querylog_size_memory: 100
+  anonymize_client_ip: false
   protection_enabled: true
   blocking_mode: default
   blocking_ipv4: ""
   blocking_ipv6: ""
   blocked_response_ttl: 10
+  parental_block_host: family-block.dns.adguard.com
+  safebrowsing_block_host: standard-block.dns.adguard.com
   ratelimit: 20
   ratelimit_whitelist: []
   refuse_any: true
+  upstream_dns:
+  - https://security.cloudflare-dns.com/dns-query
   bootstrap_dns:
   - 1.1.1.1
   - 1.0.0.1
   - 2606:4700:4700::1111
   - 2606:4700:4700::1001
   all_servers: false
-  edns_client_subnet: false
-  aaaa_disabled: false
+  fastest_addr: false
   allowed_clients: []
   disallowed_clients: []
   blocked_hosts: []
-  parental_block_host: family-block.dns.adguard.com
-  safebrowsing_block_host: standard-block.dns.adguard.com
   cache_size: 1048576
-  upstream_dns:
-  - https://security.cloudflare-dns.com/dns-query
+  cache_ttl_min: 0
+  cache_ttl_max: 0
+  bogus_nxdomain: []
+  aaaa_disabled: false
+  enable_dnssec: false
+  edns_client_subnet: false
   filtering_enabled: true
   filters_update_interval: 12
   parental_enabled: false
