@@ -10,8 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.5 # 2020.05.16
-adguardhome_vers=0.102.0 # For download
+vers=1.6 # 2020.07.24
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -44,7 +43,7 @@ error()
       printf "Sorry, but not enough free space to install the AdGuard Home!"
       ;;
     9)
-      printf "Sorry, but failed to download the AdGuard Home version $adguardhome_vers!\n Please update the installer."
+      printf "Sorry, but failed to download the AdGuard Home!\n Please update the installer."
   esac
 
   printf "\n\n The script is ended without any effect!\e[0m\n\n"
@@ -69,6 +68,7 @@ dns:
   port: 3053
   statistics_interval: 1
   querylog_enabled: true
+  querylog_file_enabled: true
   querylog_interval: 30
   querylog_size_memory: 100
   anonymize_client_ip: false
@@ -169,6 +169,11 @@ dhcp:
   lease_duration: 86400
   icmp_timeout_msec: 1000
 clients: []
+log_compress: true
+log_localtime: false
+log_max_backups: 0
+log_max_size: 10
+log_max_age: 3
 log_file: ""
 verbose: false
 schema_version: 6
@@ -179,7 +184,7 @@ setup()
 {
   cd $1
   [ $(df . | awk "NR==2 {printf \$4}") -lt 262144 ] && error 8 # 256 MiB free space check
-  wget -O adguardhome.tgz https://github.com/AdguardTeam/AdGuardHome/releases/download/v$adguardhome_vers/AdGuardHome_linux_arm.tar.gz || error 9
+  wget -O adguardhome.tgz https://static.adguard.com/adguardhome/release/AdGuardHome_linux_armv7.tar.gz || error 9
   tar -xf adguardhome.tgz AdGuardHome/AdGuardHome --strip-components 1
   rm adguardhome.tgz
   mv AdGuardHome bin/adguardhome
