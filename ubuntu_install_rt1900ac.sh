@@ -233,7 +233,7 @@ do
       [ -e $udir ] && mv $udir ${udir}_$(tr -dc a-zA-Z0-9 </dev/urandom | head -c 16) # Backup the existing data
       mkdir $udir
       cd $udir
-      wget -O ubuntu.tar.gz http://cdimage.ubuntu.com/ubuntu-base/printf releases/$vers/release/ubuntu-base-$vers-base-armhf.tar.gz || errd
+      wget -O ubuntu.tar.gz http://cdimage.ubuntu.com/ubuntu-base/releases/$vers/release/ubuntu-base-$vers-base-armhf.tar.gz || errd
       tar -xf ubuntu.tar.gz --exclude=var/lib/apt/lists/* # Exclude because of authentication problem on RT1900ac
       rm ubuntu.tar.gz
 
