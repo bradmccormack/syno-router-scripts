@@ -10,14 +10,13 @@
 # I will not take any responsibility!
 #
 #
-# Compatible Ubuntu distributions: 18.04.4 LTS
-#                                  19.10
+# Compatible Ubuntu distributions: 18.04.5 LTS
 #
 # NOTE: apt cannot authenticate the repositories on RT1900ac
 #       kernel-related issue, corrected by workaround
 #
 
-vers=1.25 # 2020.04.19
+vers=1.26 # 2020.08.14
 syno_routers="RT1900ac" # Supported models
 
 error()
@@ -207,20 +206,16 @@ do
         }
 
       [ $(df $mp | awk "NR==2 {printf \$4}") -lt 1572864 ] && error 7 # 1.5 GiB free space check
-      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.4 LTS Bionic Beaver (default)\n  \e[1m2\e[0m - 19.10 Eoan Ermine\n\n"
+      printf "\n Ubuntu version:\n\n  \e[1m1\e[0m - 18.04.5 LTS Bionic Beaver (default)\n\n"
 
       while :
       do
-        read -p "Select an option [1-2]: " o
+        read -p "Select an option [1]: " o
 
         case $o in
           ""|1)
-            vers=18.04.4
+            vers=18.04.5
             name=bionic
-            ;;
-          2)
-            vers=19.10
-            name=eoan
             ;;
           *)
             continue
