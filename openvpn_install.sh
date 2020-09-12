@@ -10,8 +10,8 @@
 # I will not take any responsibility!
 #
 
-vers=2.10 # 2020.04.17
-easyrsa_vers=3.0.7 # For download
+vers=2.11 # 2020.09.12
+easyrsa_vers=3.0.8 # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
