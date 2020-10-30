@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.6 # 2020.07.24
+vers=1.7 # 2020.10.30
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -84,6 +84,7 @@ dns:
   refuse_any: true
   upstream_dns:
   - https://security.cloudflare-dns.com/dns-query
+  upstream_dns_file: ""
   bootstrap_dns:
   - 1.1.1.1
   - 1.0.0.1
@@ -101,6 +102,8 @@ dns:
   aaaa_disabled: false
   enable_dnssec: false
   edns_client_subnet: false
+  max_goroutines: 0
+  ipset: []
   filtering_enabled: true
   filters_update_interval: 12
   parental_enabled: false
@@ -118,6 +121,7 @@ tls:
   force_https: false
   port_https: 443
   port_dns_over_tls: 853
+  port_dns_over_quic: 784
   allow_unencrypted_doh: false
   strict_sni_check: false
   certificate_chain: ""
@@ -162,12 +166,19 @@ user_rules: []
 dhcp:
   enabled: false
   interface_name: ""
-  gateway_ip: ""
-  subnet_mask: ""
-  range_start: ""
-  range_end: ""
-  lease_duration: 86400
-  icmp_timeout_msec: 1000
+  dhcpv4:
+    gateway_ip: ""
+    subnet_mask: ""
+    range_start: ""
+    range_end: ""
+    lease_duration: 86400
+    icmp_timeout_msec: 1000
+    options: []
+  dhcpv6:
+    range_start: ""
+    lease_duration: 86400
+    ra_slaac_only: false
+    ra_allow_slaac: false
 clients: []
 log_compress: true
 log_localtime: false
@@ -176,7 +187,7 @@ log_max_size: 10
 log_max_age: 3
 log_file: ""
 verbose: false
-schema_version: 6
+schema_version: 7
 EOF
 }
 
