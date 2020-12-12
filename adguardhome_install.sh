@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.7 # 2020.10.30
+vers=1.8 # 2020.12.12
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -131,7 +131,7 @@ tls:
 filters:
 - enabled: true
   url: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
-  name: AdGuard Simplified Domain Names filter
+  name: AdGuard DNS filter
   id: 1
 - enabled: false
   url: https://adaway.org/hosts.txt
