@@ -4,13 +4,13 @@
 # Compatible with Entware (soft-float) and Ubuntu chroot (hard-float)
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2020, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=1.9 # 2019.07.21
+vers=1.10 # 2020.12.20
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -164,14 +164,14 @@ do
   case $o in
     1)
       [ -f /opt/bin/opkg ] || error 4
-      [ -f /opt/bin/minidlna ] && error 6
+      [ -f /opt/sbin/minidlnad ] && error 6
       [ -f /ubuntu/usr/sbin/minidlnad ] && error 7
       [ $(df /opt | awk "NR==2 {printf \$4}") -lt 262144 ] && error 9 # 256 MiB free space check
       [ -s /opt/etc/minidlna.conf ] && pset=1 || pset="" # Do not override previous settings when reinstall
       /opt/bin/opkg update
       /opt/bin/opkg upgrade
       /opt/bin/opkg install minidlna
-      [ -f /opt/bin/minidlna ] || errd
+      [ -f /opt/sbin/minidlnad ] || errd
       [ "$pset" ] || setting /opt/etc/minidlna.conf /opt/.. /opt/var/minidlna /opt/var/minidlna
       /opt/etc/init.d/S90minidlna start
       break
@@ -179,7 +179,7 @@ do
     2)
       [ -f /ubuntu/usr/bin/apt ] || error 5
       [ -f /ubuntu/usr/sbin/minidlnad ] && error 6
-      [ -f /opt/bin/minidlna ] && error 8
+      [ -f /opt/sbin/minidlnad ] && error 8
       [ $(df /ubuntu | awk "NR==2 {printf \$4}") -lt 262144 ] && error 9 # 256 MiB free space check
       [ -s /ubuntu/etc/minidlna.conf ] && pset=1 || pset="" # Do not override previous settings when reinstall
       chroot /ubuntu /usr/bin/apt update 2>/dev/null
