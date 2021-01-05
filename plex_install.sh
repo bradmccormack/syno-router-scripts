@@ -4,14 +4,14 @@
 # Compatible with Entware and Ubuntu chroot
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018-2020, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2021, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=1.78 # 2020.12.18
-plex_vers=1.21.1.3830-6c22540d5 # For download
+vers=1.79 # 2021.01.05
+plex_vers=1.21.1.3842-b0c7a97d9 # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
