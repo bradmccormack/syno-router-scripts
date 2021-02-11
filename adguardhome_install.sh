@@ -4,13 +4,13 @@
 # Compatible with Entware (soft-float) and Ubuntu chroot (hard-float)
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2020, Krisztián Kende <krisztiankende@gmail.com>
+# 2020-2021, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=1.8 # 2020.12.12
+vers=1.9 # 2021.02.11
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -55,6 +55,7 @@ setting()
   cat << EOF >etc/adguardhome/adguardhome.conf
 bind_host: $bh
 bind_port: 3000
+beta_bind_port: 3000
 users:
 - name: synology
   password: \$2a\$10\$JVrDPjdmaQkCvdjobQXxM.mQnhTefyfKMXJJdAV/RstG101m95Ch6
@@ -115,6 +116,7 @@ dns:
   cache_time: 30
   rewrites: []
   blocked_services: []
+  customresolver: null
 tls:
   enabled: false
   server_name: ""
@@ -122,6 +124,8 @@ tls:
   port_https: 443
   port_dns_over_tls: 853
   port_dns_over_quic: 784
+  port_dnscrypt: 5443
+  dnscrypt_config_file: ""
   allow_unencrypted_doh: false
   strict_sni_check: false
   certificate_chain: ""
