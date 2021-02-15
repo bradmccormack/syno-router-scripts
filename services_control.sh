@@ -4,13 +4,13 @@
 # Compatible only with the other scripts from the collection
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018-2020, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2021, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=2.6 # 2020.12.20
+vers=2.7 # 2021.02.15
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 # Service name : Entware startup script : and package name : and process name : Ubuntu startup script : and package name : and process name
@@ -43,8 +43,13 @@ error()
 pkill()
 {
   case $1 in
-    WG) # WireGuard is running in the kernel space, the wireguard-go daemon is shutting down if the interface is deleted
-      ifconfig wg0 >/dev/null 2>&1 && ip link del wg0 && lsmod | grep -q ^wireguard && rmmod wireguard.ko
+    WG) # WireGuard is running in the kernel space, the wireguard-go daemon is shutting down if the control socket is removed
+      ifconfig wg0 >/dev/null 2>&1 && {
+          [ -S /var/run/wireguard/wg0.sock ] && rm /var/run/wireguard/wg0.sock || {
+              ip link del wg0 && lsmod | grep -q ^wireguard && rmmod wireguard.ko
+            }
+        }
+
       return 0
       ;;
     adguardhome)

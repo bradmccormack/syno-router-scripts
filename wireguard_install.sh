@@ -4,7 +4,7 @@
 # Compatible with Entware (soft-float) and Ubuntu chroot (hard-float)
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2019, Krisztián Kende <krisztiankende@gmail.com>
+# 2019-2021, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
@@ -13,7 +13,7 @@
 # NOTE: only IPv4 since the routers have limited IPv6 NAT support
 #
 
-vers=1.6 # 2019.07.21
+vers=1.7 # 2021.02.15
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -167,7 +167,10 @@ setup()
 {
   wget -O $2$3/wg goo.gl/PVdfcq || errd
   chmod +x $2$3/wg
-  ifconfig wg0 >/dev/null 2>&1 && ip link del wg0
+
+  ifconfig wg0 >/dev/null 2>&1 && {
+      [ -S /var/run/wireguard/wg0.sock ] && rm /var/run/wireguard/wg0.sock || ip link del wg0
+    }
 
   if [ "$go" ]
   then
@@ -236,14 +239,14 @@ case \$1 in
     ;;
   stop)
     ! ifconfig wg0 >/dev/null 2>&1 && printf "\\n \\e[1mAlready stopped!\\e[0m\\n\\n" || {
-        ip link del wg0$([ "$go" ] || printf " && rmmod wireguard.ko") && printf "\\n \\e[1mDone\\e[0m\\n\\n" || {
+        $([ "$go" ] && printf "rm /var/run/wireguard/wg0.sock" || printf "ip link del wg0 && rmmod wireguard.ko") && printf "\\n \\e[1mDone\\e[0m\\n\\n" || {
             printf "\\n \\e[1;31mFailed!\\e[0m\\n\\n" >&2
             exit 4
           }
       }
     ;;
   restart)
-    ifconfig wg0 >/dev/null 2>&1 && ip link del wg0$([ "$go" ] || printf " || insmod /opt/lib/modules/wireguard.ko")
+    ifconfig wg0 >/dev/null 2>&1 && $([ "$go" ] && printf "rm /var/run/wireguard/wg0.sock && usleep 100000" || printf "ip link del wg0 || insmod /opt/lib/modules/wireguard.ko")
     start
     ;;
   *)
