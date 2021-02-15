@@ -13,7 +13,7 @@
 # NOTE: only IPv4 since the routers have limited IPv6 NAT support
 #
 
-vers=1.7 # 2021.02.15
+vers=1.8 # 2021.02.15
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -103,9 +103,9 @@ get()
     set)
       ifconfig wg0 >/dev/null 2>&1 && \
         if [ "$go" ] && [ "${wg:1:1}" = u ]
-        then chroot /ubuntu /usr/local/bin/wg setconf wg0 /usr/local/etc/wireguard/wg0.conf
-        else $wg setconf wg0 $cdir/wg0.conf
-        fi
+        then chroot /ubuntu /usr/local/bin/wg setconf wg0 /usr/local/etc/wireguard/wg0.conf & usleep 100000 && kill $!
+        else $wg setconf wg0 $cdir/wg0.conf & usleep 100000 && [ "$go" ] && kill $!
+        fi 2>/dev/null
       ;;
     qrc)
       while read -n 1 -t 1 ; do : ; done # Flush input buffer
@@ -224,7 +224,7 @@ start()
 {
   $([ "$go" ] && printf "lsmod | grep -q ^tun || insmod /lib/modules/tun.ko\n  /opt/bin/wireguard-go wg0 >/dev/null 2>&1" || printf "ip link add wg0 type wireguard") && \\
   ip addr add 10.7.0.1/24 dev wg0 && \\
-  /opt/bin/wg setconf wg0 /opt/etc/wireguard/wg0.conf && \\
+  /opt/bin/wg setconf wg0 /opt/etc/wireguard/wg0.conf$([ "$go" ] && printf " & usleep 100000 && (kill \$! 2>/dev/null || true)") && \\
   ip link set wg0 up && \\
   ifconfig wg0 mtu 1432 txqueuelen 1000 && \\
   printf "\\n \\e[1mDone\\e[0m\\n\\n" || {
@@ -281,7 +281,7 @@ EOF
 ifconfig wg0 || {
     $([ "$go" ] && printf "lsmod | grep -q ^tun || insmod /mnt/Synology/lib/modules/tun.ko\n%4swireguard-go wg0" || printf "insmod /usr/local/lib/modules/wireguard.ko\n%4sip link add wg0 type wireguard")
     ip addr add 10.7.0.1/24 dev wg0
-    wg setconf wg0 /usr/local/etc/wireguard/wg0.conf
+    wg setconf wg0 /usr/local/etc/wireguard/wg0.conf$([ "$go" ] && printf " & usleep 100000 && kill \$!")
     ip link set wg0 up
     ifconfig wg0 mtu 1432 txqueuelen 1000
   }
@@ -310,7 +310,7 @@ wireguard()
   ifconfig wg0 || {
       $([ "$go" ] && printf "lsmod | grep -q ^tun || insmod /lib/modules/tun.ko\n%6s/volume1/WireGuard/bin/wireguard-go wg0" || printf "insmod /volume1/WireGuard/lib/modules/wireguard.ko\n%6sip link add wg0 type wireguard")
       ip addr add 10.7.0.1/24 dev wg0
-      /volume1/WireGuard/bin/wg setconf wg0 /volume1/WireGuard/etc/wireguard/wg0.conf
+      /volume1/WireGuard/bin/wg setconf wg0 /volume1/WireGuard/etc/wireguard/wg0.conf$([ "$go" ] && printf " & usleep 100000 && kill \$!")
       ip link set wg0 up
       ifconfig wg0 mtu 1432 txqueuelen 1000
     }
