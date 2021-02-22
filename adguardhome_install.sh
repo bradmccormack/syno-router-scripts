@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.9 # 2021.02.11
+vers=1.10 # 2021.02.22
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -200,7 +200,7 @@ setup()
   cd $1
   [ $(df . | awk "NR==2 {printf \$4}") -lt 262144 ] && error 8 # 256 MiB free space check
   wget -O adguardhome.tgz https://static.adguard.com/adguardhome/release/AdGuardHome_linux_armv7.tar.gz || error 9
-  tar -xf adguardhome.tgz AdGuardHome/AdGuardHome --strip-components 1
+  tar -xf adguardhome.tgz ./AdGuardHome/AdGuardHome --strip-components 2
   rm adguardhome.tgz
   mv AdGuardHome bin/adguardhome
   chown 0:0 bin/adguardhome
