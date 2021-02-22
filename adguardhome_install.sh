@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.10 # 2021.02.22
+vers=1.11 # 2021.02.22
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -55,7 +55,7 @@ setting()
   cat << EOF >etc/adguardhome/adguardhome.conf
 bind_host: $bh
 bind_port: 3000
-beta_bind_port: 3000
+beta_bind_port: 0
 users:
 - name: synology
   password: \$2a\$10\$JVrDPjdmaQkCvdjobQXxM.mQnhTefyfKMXJJdAV/RstG101m95Ch6
