@@ -4,13 +4,13 @@
 # Compatible with Entware (soft-float) and Ubuntu chroot (hard-float)
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018-2020, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2021, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=2.11 # 2020.09.12
+vers=2.12 # 2021.03.12
 easyrsa_vers=3.0.8 # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
@@ -126,7 +126,6 @@ tls-server
 tls-version-min 1.2
 tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384
 cipher AES-128-GCM
-compress lz4-v2
 max-clients 10
 connect-freq 1 10
 persist-key
@@ -166,7 +165,6 @@ tls-client
 tls-version-min 1.2
 tls-cipher TLS-ECDHE-ECDSA-WITH-AES-256-GCM-SHA384
 cipher AES-128-GCM
-compress lz4-v2
 ;setenv opt block-outside-dns
 verb 3
 explicit-exit-notify
