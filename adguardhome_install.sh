@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.11 # 2021.02.22
+vers=1.12 # 2021.04.29
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -59,13 +59,16 @@ beta_bind_port: 0
 users:
 - name: synology
   password: \$2a\$10\$JVrDPjdmaQkCvdjobQXxM.mQnhTefyfKMXJJdAV/RstG101m95Ch6
+auth_attempts: 5
+block_auth_min: 15
 http_proxy: ""
 language: ""
 rlimit_nofile: 0
 debug_pprof: false
 web_session_ttl: 720
 dns:
-  bind_host: $bh
+  bind_hosts:
+  - $bh
   port: 3053
   statistics_interval: 1
   querylog_enabled: true
@@ -116,7 +119,9 @@ dns:
   cache_time: 30
   rewrites: []
   blocked_services: []
-  customresolver: null
+  local_domain_name: lan
+  resolve_clients: true
+  local_ptr_upstreams: []
 tls:
   enabled: false
   server_name: ""
@@ -191,7 +196,7 @@ log_max_size: 10
 log_max_age: 3
 log_file: ""
 verbose: false
-schema_version: 7
+schema_version: 10
 EOF
 }
 
