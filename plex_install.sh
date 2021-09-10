@@ -10,8 +10,8 @@
 # I will not take any responsibility!
 #
 
-vers=1.100 # 2021.08.12
-plex_vers=1.24.0.4930-ab6e1a058 # For download
+vers=1.101 # 2021.09.10
+plex_vers=1.24.2.4973-2b1b51db9 # For download
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -54,7 +54,7 @@ error()
 setup()
 {
   [ $(df . | awk "NR==2 {printf \$4}") -lt 524288 ] && error 8 # 512 MiB free space check
-  wget -O plex.tar https://downloads.plex.tv/plex-media-server-new/$plex_vers/synology/PlexMediaServer-$plex_vers-armv7hf_neon.spk || error 9
+  wget -O plex.tar https://downloads.plex.tv/plex-media-server-new/$plex_vers/synology/PlexMediaServer-$plex_vers-armv7neon_DSM6.spk || error 9
   tar -xf plex.tar package.tgz
   rm plex.tar
 
