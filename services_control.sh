@@ -10,12 +10,12 @@
 # I will not take any responsibility!
 #
 
-vers=2.7 # 2021.02.15
+vers=2.8 # 2021.10.30
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 # Service name : Entware startup script : and package name : and process name : Ubuntu startup script : and package name : and process name
 table="\
-Transmission:S88transmission:transmission-daemon-openssl transmission-remote-openssl transmission-web:transmission-daemon transmission.sh:transmission.sh:transmission-daemon transmission-cli:transmission-daemon transmission.sh
+Transmission:S88transmission:transmission-daemon transmission-remote transmission-web:transmission-daemon transmission.sh:transmission.sh:transmission-daemon transmission-cli:transmission-daemon transmission.sh
 WireGuard:S50wireguard:WG:WG:wireguard.sh:WG:WG
 OpenVPN:S20openvpn:openvpn-openssl:openvpn:openvpn.sh:openvpn:openvpn
 AdGuard Home:S99adguardhome:AG:adguardhome:adguardhome.sh:AG:adguardhome

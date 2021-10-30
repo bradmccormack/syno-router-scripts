@@ -10,7 +10,7 @@
 # I will not take any responsibility!
 #
 
-vers=1.10 # 2019.07.21
+vers=1.11 # 2021.10.30
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -153,7 +153,7 @@ do
       [ -s /opt/etc/transmission/settings.json ] && pset=1 || pset="" # Do not override previous settings when reinstall
       /opt/bin/opkg update
       /opt/bin/opkg upgrade
-      /opt/bin/opkg install transmission-daemon-openssl transmission-remote-openssl transmission-web
+      /opt/bin/opkg install transmission-daemon transmission-remote transmission-web
       [ -f /opt/bin/transmission-daemon ] || errd
       (umask 0 ; mkdir -p /opt/../Torrent/Completed /opt/../Torrent/Incomplete /opt/../Torrent/Watchdir)
       [ "$pset" ] || setting /opt/etc/transmission/settings.json /opt/../Torrent/Completed /opt/../Torrent/Incomplete /opt/../Torrent/Watchdir
