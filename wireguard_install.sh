@@ -4,7 +4,7 @@
 # Compatible with Entware (soft-float) and Ubuntu chroot (hard-float)
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2019-2021, Krisztián Kende <krisztiankende@gmail.com>
+# 2019-2022, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
@@ -13,7 +13,7 @@
 # NOTE: only IPv4 since the routers have limited IPv6 NAT support
 #
 
-vers=1.8 # 2021.02.15
+vers=1.9 # 2022.06.26
 syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -193,7 +193,8 @@ setup()
 rname="$(head -c 8 /proc/sys/kernel/syno_hw_version 2>/dev/null)"
 printf "$rname" | egrep -q $(printf "$syno_routers" | sed "s/ /|/g") || error 2
 ping -c 1 www.google.com >/dev/null 2>&1 || error 3
-[ "$rname" = RT1900ac ] && go=1 || go="" # Using wireguard-go on RT1900ac
+#[ "$rname" = RT1900ac ] && go=1 || go="" # Using wireguard-go on RT1900ac
+go=1 # Using wireguard-go on all supported models
 qrc=""
 printf "\e[2J\e[1;1H\ec\n\e[1mWireGuard server installer script for Synology routers v$vers by Kendek\n\n 1\e[0m - Install through the existing Entware environment\n \e[1m2\e[0m - Install through the existing Ubuntu chroot environment\n \e[1m3\e[0m - Install to the router's internal storage or repair missing wg utility\n \e[1m4\e[0m - Update the $([ "$go" ] && printf "wireguard-go daemon binary" || printf "wireguard.ko kernel module") and the wg utility\n \e[1m5\e[0m - Add an additional peer and $([ -d /volume1/WireGuard ] && printf "show the client's QR code" || printf "create .zip and .png files")\n \e[1m6\e[0m - Reinitialize the current configuration\n \e[1m0\e[0m - Quit (default)\n\n"
 
