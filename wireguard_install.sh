@@ -4,7 +4,7 @@
 # Compatible with Entware (soft-float) and Ubuntu chroot (hard-float)
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2019-2022, Krisztián Kende <krisztiankende@gmail.com>
+# 2019-2023, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
@@ -13,8 +13,8 @@
 # NOTE: only IPv4 since the routers have limited IPv6 NAT support
 #
 
-vers=1.9 # 2022.06.26
-syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
+vers=1.10 # 2023.02.02
+syno_routers="RT6600ax WRX560 MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
 {
@@ -174,7 +174,7 @@ setup()
 
   if [ "$go" ]
   then
-    wget -O $2$3/wireguard-go goo.gl/L97gXo || errd
+    wget -O $2$3/wireguard-go $([ "$rname" = RT6600ax ] && printf bit.ly/3HTBRHM || printf bit.ly/3RubriT) || errd
     chmod +x $2$3/wireguard-go
   else
     [ -d $2$4 ] || mkdir $2$4

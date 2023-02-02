@@ -4,7 +4,7 @@
 # Hard-float - VFPv3-D16
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2019-2020, Krisztián Kende <krisztiankende@gmail.com>
+# 2019-2023, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
@@ -13,8 +13,8 @@
 # Compatible Ubuntu distributions: 18.04.5 LTS
 #
 
-vers=1.26 # 2020.08.14
-syno_routers="MR2200ac RT2600ac" # Supported models
+vers=1.27 # 2023.02.02
+syno_routers="RT6600ax WRX560 MR2200ac RT2600ac" # Supported models
 
 error()
 {
@@ -225,7 +225,7 @@ do
       [ -e $udir ] && mv $udir ${udir}_$(tr -dc a-zA-Z0-9 </dev/urandom | head -c 16) # Backup the existing data
       mkdir $udir
       cd $udir
-      wget -O ubuntu.tar.gz http://cdimage.ubuntu.com/ubuntu-base/releases/$vers/release/ubuntu-base-$vers-base-armhf.tar.gz || errd
+      wget -O ubuntu.tar.gz http://cdimage.ubuntu.com/ubuntu-base/releases/$vers/release/ubuntu-base-$vers-base-arm$([ "$rname" = RT6600ax ] && printf 64 || printf hf).tar.gz || errd
       tar -xf ubuntu.tar.gz
       rm ubuntu.tar.gz
 

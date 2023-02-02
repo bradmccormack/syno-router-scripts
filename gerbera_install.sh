@@ -4,7 +4,7 @@
 # Compatible with Entware (soft-float) and Ubuntu chroot (hard-float)
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2023, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
@@ -13,8 +13,8 @@
 # NOTE: issues with Samsung SMART TVs
 #
 
-vers=1.6 # 2019.07.21
-syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
+vers=1.7 # 2023.02.02
+syno_routers="RT6600ax WRX560 MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
 {

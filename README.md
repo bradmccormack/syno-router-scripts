@@ -4,6 +4,8 @@
 All scripts were tested only in Wireless Router mode!**
 
 Currently supported models:
+- RT6600ax
+- WRX560
 - MR2200ac
 - RT2600ac
 - RT1900ac

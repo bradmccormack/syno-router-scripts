@@ -4,14 +4,14 @@
 # Soft-float
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018-2019, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2023, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=1.11 # 2019.07.25
-syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
+vers=1.12 # 2023.02.02
+syno_routers="RT6600ax WRX560 MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
 {
@@ -169,7 +169,7 @@ do
         }
 
       cd /opt
-      wget -O install.sh http://bin.entware.net/armv7sf-k3.2/installer/generic.sh || errd
+      wget -O install.sh http://bin.entware.net/$([ "$rname" = RT6600ax ] && printf aarch64-k3.10 || printf armv7sf-k3.2)/installer/generic.sh || errd
       sh install.sh
       rm install.sh
       [ -f bin/opkg ] || errd

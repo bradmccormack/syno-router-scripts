@@ -3,14 +3,14 @@
 # Scripts collection executor for Synology routers
 # https://gitlab.com/Kendek/syno-router-scripts
 #
-# 2018-2020, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2023, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=1.8 # 2020.04.19
-syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
+vers=1.9 # 2023.02.02
+syno_routers="RT6600ax WRX560 MR2200ac RT2600ac RT1900ac" # Supported models
 dlink=https://gitlab.com/Kendek/syno-router-scripts/raw/master/ # Download from here
 
 # File names in order

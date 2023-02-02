@@ -4,14 +4,14 @@
 # Compatible only with the other scripts from the collection
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018-2021, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2023, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=2.8 # 2021.10.30
-syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
+vers=2.9 # 2023.02.02
+syno_routers="RT6600ax WRX560 MR2200ac RT2600ac RT1900ac" # Supported models
 
 # Service name : Entware startup script : and package name : and process name : Ubuntu startup script : and package name : and process name
 table="\

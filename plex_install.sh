@@ -4,15 +4,15 @@
 # Compatible with Entware and Ubuntu chroot
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2018-2021, Krisztián Kende <krisztiankende@gmail.com>
+# 2018-2023, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=1.103 # 2021.10.27
-plex_vers=1.24.5.5173-8dcc73a59 # For download
-syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
+vers=1.104 # 2023.02.02
+plex_vers=1.30.2.6563-3d4dc0cce # For download
+syno_routers="RT6600ax WRX560 MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
 {
@@ -54,7 +54,7 @@ error()
 setup()
 {
   [ $(df . | awk "NR==2 {printf \$4}") -lt 524288 ] && error 8 # 512 MiB free space check
-  wget -O plex.tar https://downloads.plex.tv/plex-media-server-new/$plex_vers/synology/PlexMediaServer-$plex_vers-armv7neon_DSM6.spk || error 9
+  wget -O plex.tar https://downloads.plex.tv/plex-media-server-new/$plex_vers/synology-dsm7/PlexMediaServer-$plex_vers-$([ "$rname" = RT6600ax ] && printf aarch64 || printf armv7neon)_DSM7.spk || error 9
   tar -xf plex.tar package.tgz
   rm plex.tar
 

@@ -4,14 +4,14 @@
 # Compatible with Entware (soft-float) and Ubuntu chroot (hard-float)
 # Tested only on RT2600ac in Wireless Router mode
 #
-# 2020-2021, Krisztián Kende <krisztiankende@gmail.com>
+# 2020-2023, Krisztián Kende <krisztiankende@gmail.com>
 #
 # This script can be used freely at your own risk.
 # I will not take any responsibility!
 #
 
-vers=1.12 # 2021.04.29
-syno_routers="MR2200ac RT2600ac RT1900ac" # Supported models
+vers=1.13 # 2023.02.02
+syno_routers="RT6600ax WRX560 MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
 {
@@ -55,20 +55,19 @@ setting()
   cat << EOF >etc/adguardhome/adguardhome.conf
 bind_host: $bh
 bind_port: 3000
-beta_bind_port: 0
 users:
-- name: synology
-  password: \$2a\$10\$JVrDPjdmaQkCvdjobQXxM.mQnhTefyfKMXJJdAV/RstG101m95Ch6
+  - name: synology
+    password: \$2a\$10\$JVrDPjdmaQkCvdjobQXxM.mQnhTefyfKMXJJdAV/RstG101m95Ch6
 auth_attempts: 5
 block_auth_min: 15
 http_proxy: ""
 language: ""
-rlimit_nofile: 0
+theme: auto
 debug_pprof: false
 web_session_ttl: 720
 dns:
   bind_hosts:
-  - $bh
+    - $bh
   port: 3053
   statistics_interval: 1
   querylog_enabled: true
@@ -87,27 +86,32 @@ dns:
   ratelimit_whitelist: []
   refuse_any: true
   upstream_dns:
-  - https://security.cloudflare-dns.com/dns-query
+    - https://security.cloudflare-dns.com/dns-query
   upstream_dns_file: ""
   bootstrap_dns:
-  - 1.1.1.1
-  - 1.0.0.1
-  - 2606:4700:4700::1111
-  - 2606:4700:4700::1001
+    - 1.1.1.1
+    - 1.0.0.1
+    - 2606:4700:4700::1111
+    - 2606:4700:4700::1001
   all_servers: false
   fastest_addr: false
+  fastest_timeout: 1s
   allowed_clients: []
   disallowed_clients: []
   blocked_hosts: []
+  trusted_proxies: []
   cache_size: 1048576
   cache_ttl_min: 0
   cache_ttl_max: 0
+  cache_optimistic: false
   bogus_nxdomain: []
   aaaa_disabled: false
   enable_dnssec: false
   edns_client_subnet: false
   max_goroutines: 0
+  handle_ddr: true
   ipset: []
+  ipset_file: ""
   filtering_enabled: true
   filters_update_interval: 12
   parental_enabled: false
@@ -119,24 +123,29 @@ dns:
   cache_time: 30
   rewrites: []
   blocked_services: []
-  local_domain_name: lan
-  resolve_clients: true
+  upstream_timeout: 10s
+  private_networks: []
+  use_private_ptr_resolvers: true
   local_ptr_upstreams: []
+  use_dns64: false
+  dns64_prefixes: []
+  serve_http3: false
+  use_http3_upstreams: false
 tls:
   enabled: false
   server_name: ""
   force_https: false
   port_https: 443
   port_dns_over_tls: 853
-  port_dns_over_quic: 784
-  port_dnscrypt: 5443
+  port_dns_over_quic: 853
+  port_dnscrypt: 0
   dnscrypt_config_file: ""
   allow_unencrypted_doh: false
-  strict_sni_check: false
   certificate_chain: ""
   private_key: ""
   certificate_path: ""
   private_key_path: ""
+  strict_sni_check: false
 filters:
 - enabled: true
   url: https://adguardteam.github.io/AdGuardSDNSFilter/Filters/filter.txt
@@ -175,6 +184,7 @@ user_rules: []
 dhcp:
   enabled: false
   interface_name: ""
+  local_domain_name: lan
   dhcpv4:
     gateway_ip: ""
     subnet_mask: ""
@@ -188,15 +198,26 @@ dhcp:
     lease_duration: 86400
     ra_slaac_only: false
     ra_allow_slaac: false
-clients: []
-log_compress: true
-log_localtime: false
+clients:
+  runtime_sources:
+    whois: true
+    arp: true
+    rdns: true
+    dhcp: true
+    hosts: true
+  persistent: []
+log_file: ""
 log_max_backups: 0
 log_max_size: 10
 log_max_age: 3
-log_file: ""
+log_compress: true
+log_localtime: false
 verbose: false
-schema_version: 10
+os:
+  group: ""
+  user: ""
+  rlimit_nofile: 0
+schema_version: 14
 EOF
 }
 
@@ -204,7 +225,7 @@ setup()
 {
   cd $1
   [ $(df . | awk "NR==2 {printf \$4}") -lt 262144 ] && error 8 # 256 MiB free space check
-  wget -O adguardhome.tgz https://static.adguard.com/adguardhome/release/AdGuardHome_linux_armv7.tar.gz || error 9
+  wget -O adguardhome.tgz https://static.adguard.com/adguardhome/release/AdGuardHome_linux_arm$([ "$rname" = RT6600ax ] && printf 64 || printf v7).tar.gz || error 9
   tar -xf adguardhome.tgz ./AdGuardHome/AdGuardHome --strip-components 2
   rm adguardhome.tgz
   mv AdGuardHome bin/adguardhome
