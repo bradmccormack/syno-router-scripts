@@ -13,7 +13,7 @@
 # NOTE: only IPv4 since the routers have limited IPv6 NAT support
 #
 
-vers=1.10 # 2023.02.02
+vers=1.11 # 2023.02.24
 syno_routers="RT6600ax WRX560 MR2200ac RT2600ac RT1900ac" # Supported models
 
 error()
@@ -165,7 +165,7 @@ EOF
 
 setup()
 {
-  wget -O $2$3/wg goo.gl/PVdfcq || errd
+  wget -O $2$3/wg $([ "$rname" = RT6600ax ] && printf bit.ly/3xNJOIw || printf bit.ly/3EAf5Cz) || errd
   chmod +x $2$3/wg
 
   ifconfig wg0 >/dev/null 2>&1 && {
