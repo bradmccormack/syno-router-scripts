@@ -10,6 +10,10 @@
 # I will not take any responsibility!
 #
 
+# TODO - shellcheck fixes
+# Fix RT-6600AX detection.
+set -euo
+
 vers=1.12 # 2023.02.02
 syno_routers="RT6600ax WRX560 MR2200ac RT2600ac RT1900ac" # Supported models
 
@@ -169,7 +173,12 @@ do
         }
 
       cd /opt
-      wget -O install.sh http://bin.entware.net/$([ "$rname" = RT6600ax ] && printf aarch64-k3.10 || printf armv7sf-k3.2)/installer/generic.sh || errd
+      
+      # TODO - fix this - This is busted for RT660ax. rname is not set or not working properly.
+      # Force aarch64 for now.
+      wget -O install.sh - https://bin.entware.net/aarch64-k3.10/installer/generic.sh
+
+      # wget -O install.sh http://bin.entware.net/$([ "$rname" = RT6600ax ] && printf aarch64-k3.10 || printf armv7sf-k3.2)/installer/generic.sh || errd
       sh install.sh
       rm install.sh
       [ -f bin/opkg ] || errd
